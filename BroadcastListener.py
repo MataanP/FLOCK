@@ -5,7 +5,8 @@ from Message import Message
 
 class BroadcastListener:
 
-    def __init__(self, time_step, socket):
+    def __init__(self, coord, time_step, socket):
+        self.coordinator = coord
         self.socket = socket #not sure if this will work with naming things
         self.last_listened_time_step = time_step #will have to change this
         self.thread = Thread(target=lambda: self.run())
@@ -17,13 +18,18 @@ class BroadcastListener:
             #only do something if you are the serverPC
         elif message.type == 'NHST':
             #add the new host to list of existing hosts
-            
+            #will send the new host's info to the coordinator
+
         elif message.type == 'HUPD':
             #process the info from the Host Update
+            # will send the updated info to the coordinator
+
         elif message.type == 'CCLS':
             #only do something if you are the serverPC
         elif message.type == 'LHST':
             #remove the lost host from the list of existing hosts
+            #will send the lost host's info to the coordinator
+            
         else:
             #invalid message type
 
