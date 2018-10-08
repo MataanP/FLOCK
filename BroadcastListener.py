@@ -1,5 +1,5 @@
 import socket
-def Class BroadcastListener:
+class BroadcastListener:
 
     def __init__(self, time_step, socket):
         self.socket = socket #not sure if this will work with naming things

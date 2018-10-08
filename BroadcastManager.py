@@ -1,5 +1,5 @@
 import socket
-def Class BroadcastManager:
+class BroadcastManager:
     # data structure declaration for storing all the Host Connections, Could either store sockets or ip and port
     #ListenerDataStructure
     def __init__(self, time):
