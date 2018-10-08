@@ -76,4 +76,4 @@ class Message:
 
     def generateByteMessage(self):
         message = self.type + '\0' + self.origin + '\0' + self.payload + '\n';
-        return message
+        return message.encode()
