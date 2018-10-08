@@ -12,7 +12,7 @@ def Class BroadcastManager:
                 socket.send(message.encode())
 
     def add_host(self, IP_addy, Port_addy):
-        new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         new_sock.connect((IP_addy, Port_addy))
         #data structure.add(new_sock)
         new_listener = BroadcastListener(self.time_step, new_sock)
