@@ -1,8 +1,9 @@
 import socket
 class ConnectionManager:
-    def __init__(self, time):
+    def __init__(self, time, coord):
         self.time_step = time
         self.host_socket_list = []
+        self.coordinator = coord
 
     def send_update(self, message):
         """
@@ -15,13 +16,20 @@ class ConnectionManager:
         for socket in self.host_socket_list:
             socket.send(message.generateByteMessage())
 
-    def add_host(self, IP_addy, Port_addy):
+    def add_host_with_address(self, IP_addy, Port_addy):
+        """
+        A method that is ready to add a host given an IP address and Port address
+        Will create a socket with the IP and Port and then add it to host list
+        """
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         new_sock.connect((IP_addy, Port_addy))
-        #data structure.add(new_sock)
-        new_listener = BroadcastListener(self.time_step, new_sock)
-        #ListenerDataStructure.add()
+        self.host_socket_list.append(new_sock)
+        new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
 
-
-    # i need to be able to receive information from within this host, and broadcast it to all hosts
-    # i need to be able to receive information from the sockets(threading), and sent it to this host
+    def add_host_with_socket(self, socket):
+        """
+        A method that can add a host to the list as a socket Should be mainly used
+        during startup when existing Hosts in the network try to connect to this
+        host
+        """
+        self.host_socket_list.append(socket)
