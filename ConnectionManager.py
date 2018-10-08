@@ -1,15 +1,19 @@
 import socket
-class BroadcastManager:
-    # data structure declaration for storing all the Host Connections, Could either store sockets or ip and port
-    #ListenerDataStructure
+class ConnectionManager:
     def __init__(self, time):
         self.time_step = time
-        self.host_list = []
+        self.host_socket_list = []
 
     def send_update(self, message):
-        while: #some conditional, maybe this is a thread, not sure
-            #for socket in dataStructure
-                socket.send(message.encode())
+        """
+        Given some message, the broadcaster will send this message to all currently
+        connected hosts
+
+        param message is the message object to be sent
+        param_type  message is a Message object
+        """
+        for socket in self.host_socket_list:
+            socket.send(message.generateByteMessage())
 
     def add_host(self, IP_addy, Port_addy):
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
