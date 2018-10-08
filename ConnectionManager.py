@@ -1,4 +1,5 @@
 import socket
+import sys
 class ConnectionManager:
     def __init__(self, time, coord):
         self.time_step = time
@@ -33,3 +34,8 @@ class ConnectionManager:
         host
         """
         self.host_socket_list.append(socket)
+if __name__ == "__main__":
+    main()
+
+def main():
+    ConnectionManager.add_host_with_address()
