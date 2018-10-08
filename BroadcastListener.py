@@ -1,9 +1,40 @@
 import socket
+from threading import Thread
+import Message
+from Message import Message
+
 class BroadcastListener:
 
     def __init__(self, time_step, socket):
         self.socket = socket #not sure if this will work with naming things
         self.last_listened_time_step = time_step #will have to change this
+        self.thread = Thread(target=lambda: self.run())
+        self.thread.start()
+
+
+    def handleMessage(self, message):
+        if message.type == 'CREQ':
+            #only do something if you are the serverPC
+        elif message.type == 'NHST':
+            #add the new host to list of existing hosts
+            
+        elif message.type == 'HUPD':
+            #process the info from the Host Update
+        elif message.type == 'CCLS':
+            #only do something if you are the serverPC
+        elif message.type == 'LHST':
+            #remove the lost host from the list of existing hosts
+        else:
+            #invalid message type
+
+
+    def run(self):
+        #the main method for the broadcastlistener
+        while True:
+            #receive an incoming message, if any
+            new_message = parseMessage(this.socket)
+            #decide what to do with the message
+
 
     # a class that is used for threading of the general BroadcastManager
     # each instance of this class and thus thread, is responsible for listening to one socket
