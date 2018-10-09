@@ -25,17 +25,22 @@ class ConnectionManager:
         """
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
-        self.host_socket_list.append(new_sock)
+        self.host_socket_list.append(HostConnection(socket, IP_addy))
         #new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
-        return new_sock #only used for testing
 
-    def add_host_with_socket(self, socket):
+    def add_host_with_socket(self, socket, ip_address):
         """
         A method that can add a host to the list as a socket Should be mainly used
         during startup when existing Hosts in the network try to connect to this
         host
         """
-        self.host_socket_list.append(socket)
+        self.host_socket_list.append(socket, ip_address)
+
+class HostConnection:
+
+    def __init__(self,sock, ip):
+        self.socket = sock
+        self.ip_address = ip
 
 def main():
     manager = ConnectionManager(4,1)
