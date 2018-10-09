@@ -24,8 +24,10 @@ class ConnectionManager:
         """
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         new_sock.connect((IP_addy, Port_addy))
+        new_sock.
         self.host_socket_list.append(new_sock)
-        new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
+        #new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
+        return new_sock #only used for testing
 
     def add_host_with_socket(self, socket):
         """
@@ -34,8 +36,10 @@ class ConnectionManager:
         host
         """
         self.host_socket_list.append(socket)
-if __name__ == "__main__":
-    main()
 
 def main():
-    ConnectionManager.add_host_with_address()
+    manager = ConnectionManager(4,1)
+    socket = manager.add_host_with_address("172.16.135.204", 9090)
+    socket.send("Hello".encode())
+if __name__ == "__main__":
+    main()
