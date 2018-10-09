@@ -1,0 +1,12 @@
+# This file uses sklearn find a centroid
+
+import numpy as np
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+
+
+X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
+y = np.array([1, 1, 1, 2, 2, 2])
+clf = NearestCentroid()
+clf.fit(X, y)
+NearestCentroid(metric='euclidean', shrink_threshold=None)
+print(clf.score(X,y))
