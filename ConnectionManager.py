@@ -45,7 +45,7 @@ class ConnectionManager:
         for host_conn in host_connection_list:
             if host_conn.ip_address == ip_address:
                 host_connection_list.remove(host_conn)
-                break: 
+                break:
 
 class HostConnection:
 
@@ -53,9 +53,17 @@ class HostConnection:
         self.socket = sock
         self.ip_address = ip
 
-def main():
+def first_test():
     manager = ConnectionManager(4,1)
     manager.add_host_with_address("172.16.135.204",9090)
+    manager.send_update()
+
+def second_test():
+    manager = ConnectionManager(4,1)
+    manager.add_host_with_address()
+    manager.add_host_with_address()
     manager.send_update(Message("MSG","1231","ashdalej"))
+    manager.remove_host()
+
 if __name__ == "__main__":
-    main()
+    firstTest()
