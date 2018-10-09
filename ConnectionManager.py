@@ -1,5 +1,6 @@
 import socket
 import sys
+from Message import Message
 class ConnectionManager:
     def __init__(self, time, coord):
         self.time_step = time
@@ -22,9 +23,8 @@ class ConnectionManager:
         A method that is ready to add a host given an IP address and Port address
         Will create a socket with the IP and Port and then add it to host list
         """
-        new_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
-        new_sock.
         self.host_socket_list.append(new_sock)
         #new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
         return new_sock #only used for testing
@@ -39,7 +39,7 @@ class ConnectionManager:
 
 def main():
     manager = ConnectionManager(4,1)
-    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket.send("Hello".encode())
+    manager.add_host_with_address("172.16.135.204",9090)
+    manager.send_update(Message("MSG","1231","ashdalej"))
 if __name__ == "__main__":
     main()
