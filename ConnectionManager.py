@@ -4,7 +4,7 @@ from Message import Message
 class ConnectionManager:
     def __init__(self, time, coord):
         self.time_step = time
-        self.host_socket_list = []
+        self.host_connection_list = []
         self.coordinator = coord
 
     def send_update(self, message):
@@ -15,7 +15,7 @@ class ConnectionManager:
         param message is the message object to be sent
         param_type  message is a Message object
         """
-        for socket in self.host_socket_list:
+        for socket in self.host_connection_list:
             socket.send(message.generateByteMessage())
 
     def add_host_with_address(self, IP_addy, Port_addy):
@@ -25,7 +25,7 @@ class ConnectionManager:
         """
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
-        self.host_socket_list.append(HostConnection(socket, IP_addy))
+        self.host_connection_list.append(HostConnection(socket, IP_addy))
         #new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
 
     def add_host_with_socket(self, socket, ip_address):
@@ -34,7 +34,18 @@ class ConnectionManager:
         during startup when existing Hosts in the network try to connect to this
         host
         """
-        self.host_socket_list.append(socket, ip_address)
+        self.host_connection_list.append(HostConnection(socket, ip_address))
+
+    def remove_host(self, ip_address):
+        """
+        a method to remove a specific host given an IP, will be done after
+        ServerPC sends a LoseHost message
+        """
+        #iterate throught list of host connections
+        for host_conn in host_connection_list:
+            if host_conn.ip_address == ip_address:
+                host_connection_list.remove(host_conn)
+                break: 
 
 class HostConnection:
 
