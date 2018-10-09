@@ -39,7 +39,7 @@ class ConnectionManager:
 
 def main():
     manager = ConnectionManager(4,1)
-    socket = manager.add_host_with_address("172.16.135.204", 9090)
+    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket.send("Hello".encode())
 if __name__ == "__main__":
     main()
