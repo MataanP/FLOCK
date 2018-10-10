@@ -1,6 +1,6 @@
 import socket
 import sys
-from Message import Message
+from Message import Message # used for testing
 class ConnectionManager:
     def __init__(self, time, coord):
         self.time_step = time
@@ -26,7 +26,7 @@ class ConnectionManager:
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
         self.host_connection_list.append(HostConnection(socket, IP_addy))
-        #new_listener = BroadcastListener(self, self.time_step, new_sock)
+        new_listener = BroadcastListener(self, new_sock)
         #broadcast ACK to serverPC
 
     def add_host_with_socket(self, socket, ip_address):
@@ -36,7 +36,7 @@ class ConnectionManager:
         host
         """
         self.host_connection_list.append(HostConnection(socket, ip_address))
-        # new listener
+        #new_listener
         #broadcast ACK to serverPC
 
     def remove_host(self, ip_address):
@@ -65,7 +65,7 @@ def second_test():
     manager = ConnectionManager(4,1)
     manager.add_host_with_address()
     manager.add_host_with_address()
-    manager.send_update(Message("MSG","1231","ashdalej"))
+    manager.send_update(Message("CREQ","1231","ashdalej"))
     manager.remove_host()
 
 if __name__ == "__main__":
