@@ -64,15 +64,13 @@ def first_test():
 
 def second_test():
     servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servSock.bind(("0.0.0.0",9090))
-    servSock.listen(1)
+    servSock.bind(("127.0.0.1",9090))
+    #servSock.listen(1)
     manager = ConnectionManager(4,1)
-    #manager.add_host_with_address('172.16.135.204',9090)
-    while True:
-        (sock, addr) = servSock.accept()
-        manager.add_host_with_socket(sock, addr[0])
-        print('got a connection!')
-        manager.send_update(Message("CREQ","1231","ashdalej"))
+    manager.add_host_with_address("172.16.135.64",9090)
+    #(sock, addr) = servSock.accept()
+    manager.add_host_with_socket(sock, addr[0])
+    #manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
     second_test()
