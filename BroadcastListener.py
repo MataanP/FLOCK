@@ -120,7 +120,7 @@ class BroadcastListener:
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
-                if byte == b'\r':
+                if byte == b'\n':
                     break
                 msg += byte
             datatype = msg.decode()
@@ -130,7 +130,7 @@ class BroadcastListener:
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
-                if byte == b'\r':
+                if byte == b'\n':
                     break
                 msg += byte
             origin = msg.decode()
