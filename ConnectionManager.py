@@ -15,8 +15,8 @@ class ConnectionManager:
         param message is the message object to be sent
         param_type  message is a Message object
         """
-        for socket in self.host_connection_list:
-            socket.send(message.generateByteMessage())
+        for sock in self.host_connection_list:
+            sock.send(message.generateByteMessage())
 
     def add_host_with_address(self, IP_addy, Port_addy):
         """
@@ -25,17 +25,17 @@ class ConnectionManager:
         """
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
-        self.host_connection_list.append(HostConnection(socket, IP_addy))
+        self.host_connection_list.append(HostConnection(new_sock, IP_addy))
         new_listener = BroadcastListener(self, new_sock)
         #broadcast ACK to serverPC
 
-    def add_host_with_socket(self, socket, ip_address):
+    def add_host_with_socket(self, sock, ip_address):
         """
         A method that can add a host to the list as a socket Should be mainly used
         during startup when existing Hosts in the network try to connect to this
         host
         """
-        self.host_connection_list.append(HostConnection(socket, ip_address))
+        self.host_connection_list.append(HostConnection(sock, ip_address))
         #new_listener
         #broadcast ACK to serverPC
 
@@ -48,12 +48,12 @@ class ConnectionManager:
         for host_conn in host_connection_list:
             if host_conn.ip_address == ip_address:
                 host_connection_list.remove(host_conn)
-                break:
+                break
 
 class HostConnection:
 
     def __init__(self,sock, ip):
-        self.socket = sock
+        self.sock = sock
         self.ip_address = ip
 
 def first_test():
@@ -66,10 +66,10 @@ def second_test():
     servSock.bind(("127.0.0.1",9090))
     servSock.listen(1)
     manager = ConnectionManager(4,1)
-    (socket, addr) = servSock.accept()
-    manager.add_host_with_socket(socket, addr[0])
-    manager.add_host_with_address()
-    #manager.send_update(Message("CREQ","1231","ashdalej"))
+    (sock, addr) = servSock.accept()
+    manager.add_host_with_socket(sock, addr[0])
+    manager.add_host_with_address("172.16.135.64",9090)
+    manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
-    secondTest()
+    second_test()
