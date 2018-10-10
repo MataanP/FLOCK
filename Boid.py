@@ -1,0 +1,41 @@
+import directions
+import numpy as np
+
+#Split the vertical/horizontal movement to its own logic check
+def move_xy(boid, a_boid):
+    if boid[0] == a_boid[0] and boid[1] < a_boid[1]:
+        move_down(boid)
+    elif boid[0] == a_boid[0] and boid[1] > a_boid[1]:
+        move_up(boid)
+    elif boid[1] == a_boid[1] and boid[0] < a_boid[0]:
+        move_right(boid)
+    elif boid[1] == a_boid[1] and boid[0] > a_boid[0]:
+        move_left(boid)
+
+#Split the diag movement to its own logic check
+def move_diag(boid, a_boid):
+    if boid[1] > a_boid[1] and boid[0] > a_boid[0]:
+        move_bot_left(boid)
+    elif boid[1] > a_boid[1] and boid[0] < a_boid[0]:
+        move_bot_right(boid)
+    elif boid[1] < a_boid[1] and boid[0] > a_boid[0]:
+        move_top_left(boid)
+    elif boid[1] < a_boid[1] and boid[0] < a_boid[0]:
+        move_top_right(boid)
+
+#Decide the most efficient move based on coordinates
+def decide_move(boid, a_boid):
+    if boid[0] == a_boid[0] or boid[1] == a_boid[1]:
+        move_xy(boid, a_boid)
+    else:
+        move_diag(boid, a_boid)
+
+def main():
+    boids1 = np.array([4, 1])
+    boids2 = np.array([1, 2])
+    vfunc = np.vectorize(decide_move(boids1, boids2))
+
+
+if __name__ == "__main__":
+    main()
+
