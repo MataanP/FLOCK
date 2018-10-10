@@ -5,10 +5,9 @@ from Message import Message
 
 class BroadcastListener:
 
-    def __init__(self, connection_manager, time_step, socket):
+    def __init__(self, connection_manager, socket):
         self.conn_man = connection_manager    #the coordinator for this broadcast listener
         self.socket = socket        #not sure if this will work with naming things
-        self.last_listened_time_step = time_step #will have to change this
         self.thread = Thread(target=lambda: self.run())
         self.thread.start()
 
