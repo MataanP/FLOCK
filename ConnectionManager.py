@@ -1,6 +1,7 @@
 import socket
 import sys
 from Message import Message # used for testing
+from BroadcastListener import BroadcastListener
 class ConnectionManager:
     def __init__(self, time, coord):
         self.time_step = time
@@ -15,8 +16,8 @@ class ConnectionManager:
         param message is the message object to be sent
         param_type  message is a Message object
         """
-        for sock in self.host_connection_list:
-            sock.send(message.generateByteMessage())
+        for connection in self.host_connection_list:
+            connection.sock.send(message.generateByteMessage())
 
     def add_host_with_address(self, IP_addy, Port_addy):
         """
@@ -64,12 +65,12 @@ def first_test():
 def second_test():
     servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     servSock.bind(("127.0.0.1",9090))
-    servSock.listen(1)
+    #servSock.listen(1)
     manager = ConnectionManager(4,1)
-    (sock, addr) = servSock.accept()
-    manager.add_host_with_socket(sock, addr[0])
     manager.add_host_with_address("172.16.135.64",9090)
-    manager.send_update(Message("CREQ","1231","ashdalej"))
+    #(sock, addr) = servSock.accept()
+    manager.add_host_with_socket(sock, addr[0])
+    #manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
     second_test()
