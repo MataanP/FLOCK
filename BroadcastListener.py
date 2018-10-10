@@ -124,6 +124,7 @@ class BroadcastListener:
                     break
                 msg += byte
             datatype = msg.decode()
+            print('type is ' + datatype)
             #parse the origin address
             while True:
                 msg = b''
@@ -134,6 +135,7 @@ class BroadcastListener:
                     break
                 msg += byte
             origin = msg.decode()
+            print('origin is ' + origin)
             #parse the payload
             while True:
                 msg = b''
@@ -144,6 +146,7 @@ class BroadcastListener:
                     break
                 msg += byte
             payload = msg.decode()
+            print('payload is ' + payload)
             #create the message
             return Message(datatype, origin, payload)
         except:
