@@ -115,8 +115,8 @@ class BroadcastListener:
     def parseMessage(self, sock):
         try:
             #parse the type
+            msg = b''
             while True:
-                msg = b''
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
@@ -126,8 +126,8 @@ class BroadcastListener:
             datatype = msg.decode()
             print('type is ' + datatype)
             #parse the origin address
+            msg = b''
             while True:
-                msg = b''
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
@@ -137,8 +137,8 @@ class BroadcastListener:
             origin = msg.decode()
             print('origin is ' + origin)
             #parse the payload
+            msg = b''
             while True:
-                msg = b''
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')

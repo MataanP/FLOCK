@@ -44,8 +44,8 @@ This byte string should be the data that is sent via the connection, and every h
 def parseMessage(sock):
     try:
         #parse the type
+        msg = b''
         while True:
-            msg = b''
             byte = sock.recv(1)
             if len(byte) == 0:
                 raise ConnectionError('Socket is closed')
@@ -54,8 +54,8 @@ def parseMessage(sock):
             msg += byte
         datatype = msg.decode()
         #parse the origin address
+        msg = b''
         while True:
-            msg = b''
             byte = sock.recv(1)
             if len(byte) == 0:
                 raise ConnectionError('Socket is closed')
@@ -64,8 +64,8 @@ def parseMessage(sock):
             msg += byte
         origin = msg.decode()
         #parse the payload
+        msg = b''
         while True:
-            msg = b''
             byte = sock.recv(1)
             if len(byte) == 0:
                 raise ConnectionError('Socket is closed')
