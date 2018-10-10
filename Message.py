@@ -18,7 +18,7 @@ COMMUNICATIONS PROTOCOL
 3d. once serverPC receives ACKN from all other hosts, it is safe to proceed to next timestep
 4a. Existing host doesn't reply to serverPC/is unresponsive: serverPC jumps to step 3b, with unresponsize host as lost host
 
-information in a message is seperated by '\0'
+information in a message is seperated by '\r'
 the end of a message is marked by a '\n'
 
 1. connection request = type:CREQ, origin:addr of host sending request, payload:alias/identifier
@@ -49,7 +49,7 @@ def parseMessage(sock):
             byte = sock.recv(1)
             if len(byte) == 0:
                 raise ConnectionError('Socket is closed')
-            if byte == b'\0':
+            if byte == b'\r':
                 break
             msg += byte
         datatype = msg.decode()
@@ -59,7 +59,7 @@ def parseMessage(sock):
             byte = sock.recv(1)
             if len(byte) == 0:
                 raise ConnectionError('Socket is closed')
-            if byte == b'\0':
+            if byte == b'\r':
                 break
             msg += byte
         origin = msg.decode()
@@ -88,5 +88,5 @@ class Message:
         self.payload = payload
 
     def generateByteMessage(self):
-        message = self.type + '\0' + self.origin + '\0' + self.payload + '\n';
+        message = self.type + '\r' + self.origin + '\r' + self.payload + '\n';
         return message.encode()
