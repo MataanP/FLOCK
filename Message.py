@@ -1,22 +1,35 @@
 '''
 COMMUNICATIONS PROTOCOL
 
-1. New host sends connection request to serverPC
-2. serverPC sends out new connection (if accepted) to all existing hosts
-3a. a host sends its data per timestep out to every other host (peer to peer)
-3b. every host must receive data from every other host at each timestep (peer to peer)
-4a. if a host takes too long to send its data for a timestep, it is considered disconnected
-4b. a host can send a disconnect message to ther serverPC
-5. if a host has been considered disconnected, the serverPC sends a message to all other hosts notifying them of the lost host
+1a. New host sends CREQ to serverPC
+1b. serverPC sends NHST message to all existing hosts
+1c. all hosts receive NHST, attempt to connect to new host
+1d. once connected to new host, existing host sends ACKN back to serverPC
+1e. if existing host can't connect to new host, existing host is unresponsive + should be disconnected
+1f. once all existing hosts have responded to serverPC with ACKN, serverPC sends OKAY to new host
+2a. serverPC sends STEP message to all hosts, starting new timestep
+2b. all hosts receive STEP message, run their timestep calculations, and broadcast their HUPD to all other hosts
+2c. when a host has received a HUPD from all other hosts, the host sends serverPC a SYNC message
+2d. when serverPC has received SYNC from all hosts, it is safe to proceed to next timestep
+2e. if a host doesn't send SYNC, it is unresponsive + should be disconnected
+3a. Existing host sends serverPC a CCLS messag to disconnect from network
+3b. serverPC sends all other hosts a LHST message
+3c. all hosts receive LHST message, close connection to lost host + forget about lost host, reply to serverPC with ACKN
+3d. once serverPC receives ACKN from all other hosts, it is safe to proceed to next timestep
+4a. Existing host doesn't reply to serverPC/is unresponsive: serverPC jumps to step 3b, with unresponsize host as lost host
 
 information in a message is seperated by '\0'
 the end of a message is marked by a '\n'
 
 1. connection request = type:CREQ, origin:addr of host sending request, payload:alias/identifier
 2. new host accepted = type:NHST, origin:serverPC addr, payload:new host addr
-3. host timestep update = type:HUPD, origin:host sending update, payload:updated BOID info
-4. close connection = type:CCLS, origin:addr of host closing connection, payload:none
-5. lost host relay = type:LHST, origin:serverPC addr, payload:lost host addr
+3. acknowledgement to serverPC = type:ACKN, origin:addr of host responding, payload:?
+4. connection accepted = type:OKAY, origin:serverPC addr, payload:new host addr
+5. begin new timestep = type:STEP, origin:serverPC addr, payload:?
+6. host timestep update = type:HUPD, origin:addr of host sending update, payload: update info
+7. host fully synched = type:SYNC, origin:addr of host updated, payload:?
+8. close connection = type:CCLS, origin:addr of host closing connection, payload:none
+9. lost host relay = type:LHST, origin:serverPC addr, payload:lost host addr
 
 '''
 
