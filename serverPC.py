@@ -26,6 +26,7 @@ class serverPC:
 			(conn, clientAddr) = self.servSock.accept()
 			print(clientAddr)
 			x = 0
+			'''
 			for client in allowedClients:
 				print("Client info", client)
 				if client == clientAddr:
@@ -35,12 +36,14 @@ class serverPC:
 			if x == 0:
 				print("This host does not have permission to connect with this network")
 				conn.close()
+			'''
 			#Read incoming data
 			while True:
-				msg = conn.recv(1024)
-				print(len(msg))
+				msg = conn.recv(4)
+				print(msg.decode())
+
 				#check ip with conf file
-				print("Attempted connection from: ", clientAddr)
+				print("Message received from: ", clientAddr)
 
 	def readConfig(self):
 		print("here")
