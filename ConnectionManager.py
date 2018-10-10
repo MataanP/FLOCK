@@ -57,20 +57,6 @@ class HostConnection:
         self.sock = sock
         self.ip_address = ip
 
-def first_test():
-    manager = ConnectionManager(4,1)
-    manager.add_host_with_address("172.16.135.204",9090)
-    manager.send_update()
-
-def second_test():
-    servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servSock.bind(("127.0.0.1",9090))
-    #servSock.listen(1)
-    manager = ConnectionManager(4,1)
-    manager.add_host_with_address("172.16.135.64",9090)
-    #(sock, addr) = servSock.accept()
-    manager.add_host_with_socket(sock, addr[0])
-    #manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
     second_test()
