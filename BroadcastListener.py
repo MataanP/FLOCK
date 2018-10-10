@@ -6,6 +6,7 @@ from Message import Message
 class BroadcastListener:
 
     def __init__(self, coord, time_step, socket):
+        #should add a type variable so it knows what type of CPU is being listened on (host or serverPC)
         self.coordinator = coord    #the coordinator for this broadcast listener
         self.socket = socket        #not sure if this will work with naming things
         self.last_listened_time_step = time_step #will have to change this
@@ -20,45 +21,61 @@ class BroadcastListener:
             #CREQ only gets sent from new host to serverPC
             #only serverPC reacts, otherwise incorrect message
             #serverPC reacts by sending NHST message to all exisitng hosts
+
+            #check if this serverPC. if not, the message was sent incorrectly; else, process request as serverPC
             print('CREQ received')
 
         elif message.type == 'NHST':
             #NHST only sent from serverPC to existing hosts
             #hosts connect to the new host, add new host to list of hosts, and reply to serverPC with ACKN once connected
             #new host info will be passed to coordinator
+
+            #check if this is a host. if not, message sent incorrectly; else, process request
             print('NHST received')
 
         elif message.type == 'ACKN':
             #ACKN only gets sent to the serverPC from existing hosts
             #sent either when existing host has connected to new host, or existing host has disconnected from lost host
             #serverPC must wait for an ACKN from all active hosts
+
+            #check if this is serverPC. if not, message sent incorrectly; else, make note of acknowledgement
             print('ACKN received')
 
         elif message.type == 'OKAY':
             #OKAY only gets sent from serverPC to new host when successfully connected
             #new host is now a host, and can act as such
+
+            #check if this is a new host waiting to be accepted. if not, message sent incorrectly; else, process acceptance
             print('OKAY received')
 
         elif message.type == 'STEP':
             #STEP sent out from serverPC to all hosts, indicating new timestep
             #when hosts receive STEP, they can perform new timestep calculations + broadcast out their HUPD to all other hosts
+
+            #check if this is a host. if not, message sent incorrectly; else, begin new step calculations + broadcast out HUPD
             print('STEP received')
 
         elif message.type == 'HUPD':
             #HUPD sent out from every host to every other host
             #when host receives another host's HUPD, must mark that it was received + process payload data
             #all hosts must receive an HUPD from every other host before sending SYNC to serverPC
+
+            #check if this is a host. if not, message sent incorrectly; else, make note of update from host + process update info
             print('HUPD received')
 
         elif message.type == 'SYNC':
             #SYNC only sent from fully-updated host to serverPC
             #serverPC must receive a SYNC from all active hosts before allowing new timestep to begin
             #if a host doesn't send a SYNC within a timeframe, it is considered disconnected
+
+            #check if this is serverPC. if not, message sent incorrectly; else, make note of synchronized host
             print('SYNC received')
 
         elif message.type == 'CCLS':
             #CCLS only sent from existing host to serverPC, telling serverPC that the host is leaving the network
             #when serverPC receives CCLS, must send out LHST to all other hosts so that they can disconnect from lost host
+
+            #check if this is serverPC. if not, message sent incorrectly; else, remove host from list + sent LHST to all existing hosts
             print('CCLS received')
 
         elif message.type == 'LHST':
@@ -66,6 +83,8 @@ class BroadcastListener:
             #when existing host receives LHST, must close socket shared w/ lost host and remove the lost host from list of known hosts
             #once lost host has been successfully disconnected/forgotten by existing host, existing host replies to serverPC with ACKN
             #all existing hosts must send an ACKN response to the serverPC after receiving LHST; else, they are considered disconnected
+
+            #check if this is a host. if not, message sent incorrectly; else, close lost host socket connection + remove lost host from list, then reply to serverPC with ACKN
             print('LHST received')
 
         else:
