@@ -39,7 +39,7 @@ class BroadcastListener:
                 ip = payload_array[0]
                 port = int(payload_array[1])
                 self.conn_man.add_host_with_address(ip, port)
-            else:
+            #else:
                 #ERROR
 
         elif message.type == 'ACKN':
@@ -120,7 +120,7 @@ class BroadcastListener:
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
-                if byte == b'\0':
+                if byte == b'\r':
                     break
                 msg += byte
             datatype = msg.decode()
@@ -130,7 +130,7 @@ class BroadcastListener:
                 byte = sock.recv(1)
                 if len(byte) == 0:
                     raise ConnectionError('Socket is closed')
-                if byte == b'\0':
+                if byte == b'\r':
                     break
                 msg += byte
             origin = msg.decode()
