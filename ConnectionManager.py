@@ -72,4 +72,4 @@ def second_test():
     #manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
-    firstTest()
+    secondTest()
