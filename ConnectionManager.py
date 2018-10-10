@@ -62,11 +62,14 @@ def first_test():
     manager.send_update()
 
 def second_test():
+    servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    servSock.bind(("127.0.0.1",9090))
+    servSock.listen(1)
     manager = ConnectionManager(4,1)
+    (socket, addr) = servSock.accept()
+    manager.add_host_with_socket(socket, addr[0])
     manager.add_host_with_address()
-    manager.add_host_with_address()
-    manager.send_update(Message("CREQ","1231","ashdalej"))
-    manager.remove_host()
+    #manager.send_update(Message("CREQ","1231","ashdalej"))
 
 if __name__ == "__main__":
     firstTest()
