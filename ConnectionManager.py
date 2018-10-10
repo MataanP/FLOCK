@@ -26,7 +26,8 @@ class ConnectionManager:
         new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         new_sock.connect((IP_addy, Port_addy))
         self.host_connection_list.append(HostConnection(socket, IP_addy))
-        #new_listener = BroadcastListener(self.coord, self.time_step, new_sock)
+        #new_listener = BroadcastListener(self, self.time_step, new_sock)
+        #broadcast ACK to serverPC
 
     def add_host_with_socket(self, socket, ip_address):
         """
@@ -35,6 +36,8 @@ class ConnectionManager:
         host
         """
         self.host_connection_list.append(HostConnection(socket, ip_address))
+        # new listener
+        #broadcast ACK to serverPC
 
     def remove_host(self, ip_address):
         """
