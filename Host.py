@@ -1,5 +1,5 @@
-import Message
-import threading
+from threading import Thread
+from Message import Message
 
 
 class Host:
@@ -18,6 +18,44 @@ class Host:
         self.updated = False
         self.updates_received = []  #this will be for keeping track of what host we've received an HUPD from
         self.connectToServer()
+
+    def parseMessage(self, sock):
+        try:
+            #parse the type
+            msg = b''
+            while True:
+                byte = sock.recv(1)
+                if len(byte) == 0:
+                    raise ConnectionError('Socket is closed')
+                if byte == b'\n':
+                    break
+                msg += byte
+            datatype = msg.decode()
+            #parse the origin address
+            msg = b''
+            while True:
+                byte = sock.recv(1)
+                if len(byte) == 0:
+                    raise ConnectionError('Socket is closed')
+                if byte == b'\n':
+                    break
+                msg += byte
+            origin = msg.decode()
+            #parse the payload
+            msg = b''
+            while True:
+                byte = sock.recv(1)
+                if len(byte) == 0:
+                    raise ConnectionError('Socket is closed')
+                if byte == b'\n':
+                    break
+                msg += byte
+            payload = msg.decode()
+            #create the message
+            return Message(datatype, origin, payload)
+        except:
+            #Error reading from socket
+            return None
 
     def connectToServer(self):
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -134,6 +172,13 @@ class Host:
                 print('Invalid message type received')
         return
 
+    def run(self):
+        main_thread = Thread(target=lambda: self.connectToServer())
+        main_thread.start()
+        while(self.running == True):
+            input = raw_input('Enter "quit" to end program: ')
+            if input == 'quit':
+                self.running = False
 
 
 class Connection:
