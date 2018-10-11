@@ -6,47 +6,46 @@ class serverPC:
 
 	def __init__(self):
 		self.servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-
+		self.host_addrs = []
 
 
 	def parseMessage(self, sock):
-	    try:
-	        #parse the type
-	        msg = b''
-	        while True:
-	            byte = sock.recv(1)
-	            if len(byte) == 0:
-	                raise ConnectionError('Socket is closed')
-	            if byte == b'\n':
-	                break
-	            msg += byte
-	        datatype = msg.decode()
-	        #parse the origin address
-	        msg = b''
-	        while True:
-	            byte = sock.recv(1)
-	            if len(byte) == 0:
-	                raise ConnectionError('Socket is closed')
-	            if byte == b'\n':
-	                break
-	            msg += byte
-	        origin = msg.decode()
-	        #parse the payload
-	        msg = b''
-	        while True:
-	            byte = sock.recv(1)
-	            if len(byte) == 0:
-	                raise ConnectionError('Socket is closed')
-	            if byte == b'\n':
-	                break
-	            msg += byte
-	        payload = msg.decode()
-	        #create the message
-	        return Message(datatype, origin, payload)
-	    except:
-	        #Error reading from socket
-	        return None
+		try:
+			#parse the type
+			msg = b''
+			while True:
+				byte = sock.recv(1)
+				if len(byte) == 0:
+					raise ConnectionError('Socket is closed')
+				if byte == b'\n':
+					break
+				msg += byte
+			datatype = msg.decode()
+			#parse the origin address
+			msg = b''
+			while True:
+				byte = sock.recv(1)
+				if len(byte) == 0:
+					raise ConnectionError('Socket is closed')
+				if byte == b'\n':
+					break
+				msg += byte
+			origin = msg.decode()
+			#parse the payload
+			msg = b''
+			while True:
+				byte = sock.recv(1)
+				if len(byte) == 0:
+					raise ConnectionError('Socket is closed')
+				if byte == b'\n':
+					break
+				msg += byte
+			payload = msg.decode()
+			#create the message
+			return Message(datatype, origin, payload)
+		except:
+			#Error reading from socket
+			return None
 
 #TO DO
 #check IP
@@ -64,19 +63,7 @@ class serverPC:
 		#Accept connection
 		while True:
 			(conn, clientAddr) = self.servSock.accept()
-			message = self.parseMessage(self.conn)
-			if message.type == 'CREQ':
-				print('cool - received CREQ message')
-				#serverPC received CREQ message from new connection
-				#now, need to send out NHST message to all existing hosts
-				#once all existing hosts have responded with ACKN, send OKAY message to new connection
-				#add the new connection to the list of host connections
-			else:
-				print('Invalid message type received - CREQ expected, message of type ' + message.type + ' received.')
-
-			#still gotta wait for the CREQ message
 			x = 0
-			'''
 			for client in allowedClients:
 				print("Client info", client)
 				if client == clientAddr:
@@ -86,7 +73,23 @@ class serverPC:
 			if x == 0:
 				print("This host does not have permission to connect with this network")
 				conn.close()
-			'''
+			message = self.parseMessage(self.conn)
+			if message.type == 'CREQ':
+				#Payload checking list of host addrs
+				print('cool - received CREQ message')
+				self.message = Message("OKAY", addr, "Payload")
+				conn.send(self.message.generateByteMessage())
+				conn.close()
+				host_addrs.append(clientAddr)
+				#serverPC received CREQ message from new connection
+				#now, need to send out NHST message to all existing hosts
+				#once all existing hosts have responded with ACKN, send OKAY message to new connection
+				#add the new connection to the list of host connections
+			else:
+				print('Invalid message type received - CREQ expected, message of type ' + message.type + ' received.')
+				conn.close()
+			#still gotta wait for the CREQ message
+
 
 
 	def readConfig(self):
