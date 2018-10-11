@@ -181,9 +181,9 @@ class Host:
         while (self.running == True):
             user_input = input('Enter "quit" to end program: ')
             if user_input == 'quit':
+                main_thread.join()
                 print('almost quit...! good try')
                 self.running = False
-
 
 class Connection:
     def __init__(self, ip, sock, thread):
