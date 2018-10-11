@@ -18,7 +18,7 @@ class Host:
         self.running = True
         self.updated = False
         self.updates_received = []  # this will be for keeping track of what host we've received an HUPD from
-        self.connectToServer()
+        self.run()
 
     def parseMessage(self, sock):
         try:
@@ -56,6 +56,7 @@ class Host:
             return Message(datatype, origin, payload)
         except:
             # Error reading from socket
+            print('uh oh - message not received')
             return None
 
     def connectToServer(self):
@@ -81,13 +82,14 @@ class Host:
 
     def setupHostConnections(self):
         for host_ip in self.host_ips:
-            host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            host_socket.connect((host_ip, 9090))
-            new_host_msg = Message("NHST", self.ip, self.host_area)
-            host_socket.sendall(new_host_msg.generateByteMessage())
-            new_thread = Thread(target=lambda: self.listenToHost(host_socket))
-            new_thread.start()
-            self.connections.append(Connection(host_ip, host_socket, new_thread))
+            if host_ip != self.ip and host_ip != '':
+                host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                host_socket.connect((host_ip, 9090))
+                new_host_msg = Message("NHST", self.ip, self.host_area)
+                host_socket.sendall(new_host_msg.generateByteMessage())
+                new_thread = Thread(target=lambda: self.listenToHost(host_socket))
+                new_thread.start()
+                self.connections.append(Connection(host_ip, host_socket, new_thread))
         # here, all of the host connections have been set up
         # need to start the listening thread and the work thread now
         listening_thread = Thread(target=lambda: self.listeningPort())
@@ -119,16 +121,16 @@ class Host:
                 instruction = self.work_queue.pop(0)
                 if instruction.type == 'Do Math':
                     self.updated = False
-                    print('Doing Math')
+                    #print('Doing Math')
                 # run calculations
                 elif instruction.type == 'Send HUPD':
                     # broadcast out this host's HUPD
-
-                    print('Broadcasting Out HUPD')
+                    msg = 'msg'
+                    #print('Broadcasting Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
-
-                    print('Receiving all HUPDs')
+                    msg = 'msg'
+                    #print('Receiving all HUPDs')
                     # only set to true once all updates have been received
                     self.updated = True
                 elif instruction.type == 'NHST':
@@ -179,6 +181,7 @@ class Host:
         while (self.running == True):
             user_input = input('Enter "quit" to end program: ')
             if user_input == 'quit':
+                print('almost quit...! good try')
                 self.running = False
 
 
