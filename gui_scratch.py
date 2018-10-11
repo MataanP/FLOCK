@@ -20,7 +20,6 @@ birds['position'] = np.random.rand(n_birds, 2)
 
 
 # Construct the scatter which we will update during animation
-# as the raindrops develop.
 scat = ax.scatter(birds['position'][:, 0], birds['position'][:, 1],
                   s=5, lw=.5, edgecolors='black',
                   facecolors='none')
