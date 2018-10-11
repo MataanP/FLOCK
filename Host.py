@@ -17,6 +17,7 @@ class Host:
         self.running = True
         self.updated = False
         self.updates_received = []  #this will be for keeping track of what host we've received an HUPD from
+        self.connectToServer()
 
     def connectToServer(self):
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,7 +89,7 @@ class Host:
                 elif instruction.type == 'Receive All HUPDs':
                     #make sure to receive all HUPDs from listening threads
 
-                    
+
                     #only set to true once all updates have been received
                     self.updated = True
                 elif instruction.type == 'NHST':
