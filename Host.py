@@ -11,6 +11,25 @@ class Host:
         self.host_ips = []
         self.conn_sockets = []
 
+
+    def listening_port(self):
+        #this will be for the port that constantly listens for new connections
+        #create a new thread here for running this, or call the thread elsewhere to run this functions
+        listening_socket = socket.socket(socket.AF_INET, aocket.SOCK_STREAM)
+        listening_socket.bind((self.ip, 9090))
+        listening_socket.listen(1)
+        while True:
+            new_conn, new_conn_addr = listening_socket.accept()
+            #wait for a NHST message from the new connect
+            message = parseMessage(new_conn)
+            if(message.type == 'NHST'):
+                #deal with NHST
+                self.host_ips.append(message.origin)
+                #add the new_conn socket to the list of conn_sockets
+                
+            else:
+                print('Invalid Message Type received')
+
     def run(self):
         clientSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         clientSock.bind((self.ip, self.port))
@@ -58,4 +77,3 @@ class Connection(thread.threading):
         self.hostSock.close()
         self.hostThread.exit()
         print("Host has been disconnected")
-
