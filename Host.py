@@ -11,7 +11,7 @@ class Host:
         self.host_area = 'boid area'
         self.host_ips = []
         self.connections = []
-        self.workQueue = []
+        self.work_queue = []
         #to 'pop' off the first thing in queue, use workQueue.pop(0) to pop off + return thing at index 0
         #to add things to the workQueue, use workQueue.append(thing)
         self.running = True
@@ -65,10 +65,10 @@ class Host:
             new_conn_sock, (new_conn_ip, new_conn_port) = listening_socket.accept()
             message = self.parseMessage(new_conn_sock)
             if(message.type == 'NHST'):
-                self.host_ips.append(message.origin)
-                new_thread = Thread(target=lambda: self.listenToHost(new_conn_sock))
-                new_thread.start()
-                self.connections.append(Connection(new_conn_ip, new_conn_sock, new_thread))
+                new_instruction = Instruction('NHST')
+                new_instruction.message = message
+                new_instruction.sock = new_conn_sock
+                self.work_queue.append(new_instruction)
             else:
                 print('Invalid Message Type received')
         return
@@ -77,19 +77,39 @@ class Host:
     def processWork(self):
         while self.running == True:
             if len(self.work_queue) == 0:
-                self.work_queue = ['Do Math', 'Send HUPD', 'Receive All HUPDs']
+                self.work_queue = [Instruction('Do Math'), Instruction('Send HUPD'), Instruction('Receive All HUPDs')]
             else:
                 instruction = self.work_queue.pop(0)
-                if instruction == 'Do Math' :
+                if instruction.type == 'Do Math' :
+                    self.updated = False
                     #run calculations
-                elif instruction == 'Send HUPD':
+                elif instruction.type == 'Send HUPD':
                     #broadcast out this host's HUPD
-                elif instruction == 'Receive All HUPDs':
+                elif instruction.type == 'Receive All HUPDs':
                     #make sure to receive all HUPDs from listening threads
-                elif instruction == 'NHST':
+
+                    
+                    #only set to true once all updates have been received
+                    self.updated = True
+                elif instruction.type == 'NHST':
                     #run a function to add the new host ip to the list of host ip + add new host connection to the list of connections
-                elif instruction == 'LHST':
-                    #run a function to remove the lost host from list of host ips + close and remove lost host connection from list of connections
+                    new_host_ip = instruction.message.origin
+                    self.host_ips.append(new_host_ip)
+                    new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
+                    new_thread.start()
+                    self.connections.append(Connection(new_host_ip, instruction.sock, new_thread))
+
+                elif instruction.type == 'LHST':
+                    for host_ip in self.host_ips:
+                        if host_ip == instruction.message.origin:
+                            self.host_ips.remove(host_ip)
+                    #here, host_ip was removed from list of host_ips
+                    for connection in self.connections:
+                        if connection.ip == instruction.message.origin:
+                            connection.close()
+                            self.connections.remove(connection)
+                    #here, the connection for the host was closed + connection was removed from list of connections
+
                 else:
                     print('Invalid Instruction - skipping...')
 
@@ -101,26 +121,21 @@ class Host:
             if message.type == 'HUPD':
                 #pass message payload somewhere so they can be used for next calculcations
                 self.updates_received.append(message.origin)
+
                 while(self.updated != True):
                     #wait
                     wait = 'wait'
             elif message.type == 'LHST':
-                for host_ip in self.host_ips:
-                    if host_ip == message.origin:
-                        self.host_ips.remove(host_ip)
-                #here, host_ip was removed from list of host_ips
-                for connection in self.connections:
-                    if connection.ip == message.origin:
-                        connection.close()
-                        self.connections.remove(connection)
-                #here, the connection for the host was closed + connection was removed from list of connections
+                new_instruction = Instruction('LHST')
+                new_instruction.message = message
+                self.work_queue.append(new_instruction)
             else:
                 print('Invalid message type received')
         return
 
 
 
-class Connection():
+class Connection:
     def __init__(self, ip, sock, thread ):
         self.ip = ip
         self.host_sock = sock
@@ -131,3 +146,8 @@ class Connection():
         self.host_sock.close()
         self.host_thread.exit()
         print("Host has been disconnected")
+
+
+class Instruction:
+    def __init__(self, type):
+        self.type = type
