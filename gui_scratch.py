@@ -21,8 +21,8 @@ birds['position'] = np.random.rand(n_birds, 2)
 
 # Construct the scatter which we will update during animation
 scat = ax.scatter(birds['position'][:, 0], birds['position'][:, 1],
-                  s=20, lw=.5, edgecolors='black',
-                  facecolors='none', marker=">")
+                  s=30, lw=.5, edgecolors='none',
+                  facecolors='green', marker=">")
 
 def update(frame_number):
     # Pick a new position for birds
