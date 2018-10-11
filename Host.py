@@ -121,13 +121,16 @@ class Host:
                 instruction = self.work_queue.pop(0)
                 if instruction.type == 'Do Math' :
                     self.updated = False
+                    print('Doing Math')
                     #run calculations
                 elif instruction.type == 'Send HUPD':
                     #broadcast out this host's HUPD
+
+                    print('Broadcasting Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     #make sure to receive all HUPDs from listening threads
 
-
+                    print('Receiving all HUPDs')
                     #only set to true once all updates have been received
                     self.updated = True
                 elif instruction.type == 'NHST':
@@ -156,7 +159,7 @@ class Host:
 
     def listenToHost(self, host_sock):
         while self.running == True:
-            message = parseMessage(host_sock)
+            message = self.parseMessage(host_sock)
             if message.type == 'HUPD':
                 #pass message payload somewhere so they can be used for next calculcations
                 self.updates_received.append(message.origin)
@@ -176,7 +179,7 @@ class Host:
         main_thread = Thread(target=lambda: self.connectToServer())
         main_thread.start()
         while(self.running == True):
-            input = raw_input('Enter "quit" to end program: ')
+            input = input('Enter "quit" to end program: ')
             if input == 'quit':
                 self.running = False
 
