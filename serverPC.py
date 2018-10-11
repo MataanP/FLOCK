@@ -1,5 +1,4 @@
 import sys
-import threading
 import socket
 
 class serverPC:
@@ -62,25 +61,27 @@ class serverPC:
 		self.servSock.listen(1)
 		#Accept connection
 		while True:
-			(conn, clientAddr) = self.servSock.accept()
+			conn, (client_ip, client_port) = self.servSock.accept()
 			x = 0
 			for client in allowedClients:
 				print("Client info", client)
-				if client == clientAddr:
+				if client == client_ip:
 					print("This client is allowed to connect")
 					x += 1
 					break
 			if x == 0:
 				print("This host does not have permission to connect with this network")
 				conn.close()
-			message = self.parseMessage(self.conn)
+			message = self.parseMessage(conn)
 			if message.type == 'CREQ':
 				#Payload checking list of host addrs
 				print('cool - received CREQ message')
-				self.message = Message("OKAY", addr, "Payload")
-				conn.send(self.message.generateByteMessage())
+				#Allocate bird area call outside area function
+				payload = "Bird Area," + ','.join(self.host_addrs)
+				message = Message("OKAY", addr, payload)
+				conn.send(message.generateByteMessage())
 				conn.close()
-				host_addrs.append(clientAddr)
+				self.host_addrs.append(client_ip)
 				#serverPC received CREQ message from new connection
 				#now, need to send out NHST message to all existing hosts
 				#once all existing hosts have responded with ACKN, send OKAY message to new connection
@@ -89,7 +90,6 @@ class serverPC:
 				print('Invalid message type received - CREQ expected, message of type ' + message.type + ' received.')
 				conn.close()
 			#still gotta wait for the CREQ message
-
 
 
 	def readConfig(self):
@@ -102,8 +102,7 @@ class serverPC:
 			addr = line.split()
 			if addr[0] == 'addr':
 				#gather all the allowed host addresses
-				addressTuple = (addr[1], int(addr[2]))
-				hostChecker.append(addressTuple)
+				hostChecker.append(addr[1])
 			elif addr[0] == 'serverAddr':
 				serverAddr.append(line)
 		server = serverAddr[0].split()
