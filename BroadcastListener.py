@@ -15,16 +15,6 @@ class BroadcastListener:
 
 
     def handleMessage(self, message):
-        if message.type == 'CREQ':
-            #CREQ only gets sent from new host to serverPC
-            #only serverPC reacts, otherwise incorrect message
-            #serverPC reacts by sending NHST message to all exisitng hosts
-
-            #check if this serverPC. if not, the message was sent incorrectly; else, process request as serverPC
-            #if serverPC, hand message to serverPC method for adding a new host to the network
-            #THIS IS NOT SERVERPC
-            print('CREQ received - bad')
-
         elif message.type == 'NHST':
             #NHST only sent from serverPC to existing hosts
             #hosts connect to the new host, add new host to list of hosts, and reply to serverPC with ACKN once connected
@@ -42,57 +32,7 @@ class BroadcastListener:
             #else:
                 #ERROR
 
-        elif message.type == 'ACKN':
-            #ACKN only gets sent to the serverPC from existing hosts
-            #sent either when existing host has connected to new host, or existing host has disconnected from lost host
-            #serverPC must wait for an ACKN from all active hosts
-
-            #check if this is serverPC. if not, message sent incorrectly
-            #if serverPC, make note that host sent acknowledgement
-            print('ACKN received - bad')
-
-        elif message.type == 'OKAY':
-            #OKAY only gets sent from serverPC to new host when successfully connected
-            #new host is now a host, and can act as such
-
-            #check if this is a new host waiting to be accepted. if not, message sent incorrectly
-            #if new host, now accepted into the system
-            print('OKAY received - good')
-
-        elif message.type == 'STEP':
-            #STEP sent out from serverPC to all hosts, indicating new timestep
-            #when hosts receive STEP, they can perform new timestep calculations + broadcast out their HUPD to all other hosts
-
-            #check if this is a host. if not, message sent incorrectly
-            #if a host, run new timestep BOID calculations + broadcast out HUPD
-            print('STEP received - good')
-
-        elif message.type == 'HUPD':
-            #HUPD sent out from every host to every other host
-            #when host receives another host's HUPD, must mark that it was received + process payload data
-            #all hosts must receive an HUPD from every other host before sending SYNC to serverPC
-
-            #check if this is a host. if not, message sent incorrectly
-            #if a host, make note of the host you got an update from + process update info
-            print('HUPD received - good')
-
-        elif message.type == 'SYNC':
-            #SYNC only sent from fully-updated host to serverPC
-            #serverPC must receive a SYNC from all active hosts before allowing new timestep to begin
-            #if a host doesn't send a SYNC within a timeframe, it is considered disconnected
-
-            #check if this is serverPC. if not, message sent incorrectly
-            #if serverPC, make note that specific host is synchronized
-            print('SYNC received - bad')
-
-        elif message.type == 'CCLS':
-            #CCLS only sent from existing host to serverPC, telling serverPC that the host is leaving the network
-            #when serverPC receives CCLS, must send out LHST to all other hosts so that they can disconnect from lost host
-
-            #check if this is serverPC. if not, message sent incorrectly; else, remove host from list + sent LHST to all existing hosts
-            #if serverPC, hand message to serverPC method for removing an existing host from network
-            print('CCLS received - bad')
-
+        
         elif message.type == 'LHST':
             #LHST only sent from serverPC to existing hosts
             #when existing host receives LHST, must close socket shared w/ lost host and remove the lost host from list of known hosts
@@ -105,6 +45,15 @@ class BroadcastListener:
             payload_array = message.payload.split(':')
             ip = payload_array[0]
             self.conn_man.remove_host(ip)
+
+        elif message.type == 'HUPD':
+            #HUPD sent out from every host to every other host
+            #when host receives another host's HUPD, must mark that it was received + process payload data
+            #all hosts must receive an HUPD from every other host before sending SYNC to serverPC
+
+            #check if this is a host. if not, message sent incorrectly
+            #if a host, make note of the host you got an update from + process update info
+            print('HUPD received - good')
 
 
         else:
