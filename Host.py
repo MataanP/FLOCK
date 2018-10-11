@@ -88,13 +88,16 @@ class Host:
                 new_host_msg = Message("NHST", self.ip, self.host_area)
                 host_socket.sendall(new_host_msg.generateByteMessage())
                 new_thread = Thread(target=lambda: self.listenToHost(host_socket))
+                new_thread.daemon = True
                 new_thread.start()
                 self.connections.append(Connection(host_ip, host_socket, new_thread))
         # here, all of the host connections have been set up
         # need to start the listening thread and the work thread now
         listening_thread = Thread(target=lambda: self.listeningPort())
+        listening_thread.daemon = True
         listening_thread.start()
         work_thread = Thread(target=lambda: self.processWork())
+        work_thread.daemon = True
         work_thread.start()
 
     def listeningPort(self):
@@ -138,6 +141,7 @@ class Host:
                     new_host_ip = instruction.message.origin
                     self.host_ips.append(new_host_ip)
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
+                    new_thread.daemon = True
                     new_thread.start()
                     self.connections.append(Connection(new_host_ip, instruction.sock, new_thread))
 
@@ -177,6 +181,7 @@ class Host:
 
     def run(self):
         main_thread = Thread(target=lambda: self.connectToServer())
+        main_thread.daemon = True
         main_thread.start()
         while (self.running == True):
             user_input = input('Enter "quit" to end program: ')
