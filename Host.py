@@ -1,3 +1,6 @@
+import Message
+import threading
+
 
 class Host:
 
@@ -29,3 +32,30 @@ class Host:
         else:
         	#invalid message type - can not connect to network
             print('Invalid message type received')
+
+		def setupHostConnections(self):
+    		for hosts in host_ips:
+        		#create socket for currHost
+        		hostSocket = socket.socket(AF_INET, SOCK_STREAM)
+                hostSocket.connect((hosts, 9090))
+                newHostMsg = Message("NHST", self.ip, self.host_area)
+                newHostMsg.generateByteMessage()
+                hostSocket.sendall(newHostMsg)
+                #MAKE CONNECTION OBJECT WITH BELOW
+                    #create thread for listening to connection
+                    #start thread
+                    #Add socket and thread to list for clean disconnect and IP
+                #start thread with target processWork
+
+class Connection(thread.threading):
+    def __init__(self,ip, socket, thread ):
+        self.ip = ip
+        self.hostSock = socket
+        self.hostThread = thread
+
+    def close(self):
+        #connection close function for closing sockets and threads
+        self.hostSock.close()
+        self.hostThread.exit()
+        print("Host has been disconnected")
+
