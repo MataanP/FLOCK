@@ -1,5 +1,6 @@
 import sys
 import socket
+import Message
 
 class serverPC:
 
