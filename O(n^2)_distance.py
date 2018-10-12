@@ -7,7 +7,7 @@ from scipy.spatial.distance import pdist
 
 random.seed(a = 42)
 list_birds = []
-
+print("Calculating point wise distance between 1000 birds")
 for i in range(1000):
     x = random.randint(0, 100)
     y = random.randint(0, 100)
