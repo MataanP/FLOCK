@@ -84,7 +84,8 @@ class Host:
                 else:
                     self.host_ips.append(payload_array[i])
                 i += 1
-            del_message = Message('LHST', self.ip, lost_payload])
+            del_message = Message('LHST', self.ip, lost_payload)
+            print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
             # ready to call new function
             # here, all of the host connections have been set up
