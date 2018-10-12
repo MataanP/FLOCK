@@ -21,9 +21,6 @@ a_birds = np.zeros(a_n_birds, dtype=[('position', float, 2)])
 birds['position'] = [[.5, .2], [.1, .9], [.2, .1], [.8, .8], [.4, .5]]
 a_birds['position'] = [[.5, .5]]
 
-# Centroid for a_bird
-# centroid = np.rint(measurements.center_of_mass(birds['position']))
-# print(centroid)
 
 # Construct the scatter which we will update during animation
 scat = ax.scatter(birds['position'], birds['position'],
@@ -57,44 +54,39 @@ def decide_move(i):
         birds['position'][i, 1] += 0.001
         birds['position'][i, 0] += 0.001
 
-# Not working yet
-# def a_decide_move():
-#     if centroid[0] == a_birds['position'][0, 0] and centroid[[1] < a_birds['position'][0, 1]:
-#         a_birds['position'][0, 1] -= 0.001
-#     elif centroid[0] == a_birds['position'][0, 0] and centroid[[1] > a_birds['position'][0, 1]:
-#         a_birds['position'][0, 1] += 0.001
-#     elif centroid[1] == a_birds['position'][0, 1] and centroid[[0] < a_birds['position'][0, 0]:
-#         a_birds['position'][0, 0] += 0.001
-#     elif centroid[1] == a_birds['position'][0, 1] and centroid[[0] > a_birds['position'][0, 0]:
-#         a_birds['position'][0, 0] -= 0.001
-#     elif centroid[1] > a_birds['position'][0, 1] and centroid[[0] > a_birds['position'][0, 0]:
-#         a_birds['position'][0, 1] -= 0.001
-#         a_birds['position'][0, 0] -= 0.001
-#     elif centroid[1] > a_birds['position'][0, 1] and centroid[[0] < a_birds['position'][0, 0]:
-#         a_birds['position'][0, 1] -= 0.001
-#         a_birds['position'][0, 0] += 0.001
-#     elif centroid[1] < a_birds['position'][0, 1] and centroid[[0] > a_birds['position'][0, 0]:
-#         a_birds['position'][0, 1] += 0.001
-#         a_birds['position'][0, 0] -= 0.001
-#     elif centroid[1] < a_birds['position'][0, 1] and centroid[[0] < a_birds['position'][0, 0]:
-#         a_birds['position'][0, 1] += 0.001
-#         a_birds['position'][0, 0] += 0.001
+def a_decide_move():
+    centroid = np.rint(measurements.center_of_mass(birds['position']))
+    if centroid[0] == a_birds['position'][0, 0] and centroid[1] < a_birds['position'][0, 1]:
+        a_birds['position'][0, 1] -= 0.001
+    elif centroid[0] == a_birds['position'][0, 0] and centroid[1] > a_birds['position'][0, 1]:
+        a_birds['position'][0, 1] += 0.001
+    elif centroid[1] == a_birds['position'][0, 1] and centroid[0] < a_birds['position'][0, 0]:
+        a_birds['position'][0, 0] += 0.001
+    elif centroid[1] == a_birds['position'][0, 1] and centroid[0] > a_birds['position'][0, 0]:
+        a_birds['position'][0, 0] -= 0.001
+    elif centroid[1] > a_birds['position'][0, 1] and centroid[0] > a_birds['position'][0, 0]:
+        a_birds['position'][0, 1] -= 0.001
+        a_birds['position'][0, 0] -= 0.001
+    elif centroid[1] > a_birds['position'][0, 1] and centroid[0] < a_birds['position'][0, 0]:
+        a_birds['position'][0, 1] -= 0.001
+        a_birds['position'][0, 0] += 0.001
+    elif centroid[1] < a_birds['position'][0, 1] and centroid[0] > a_birds['position'][0, 0]:
+        a_birds['position'][0, 1] += 0.001
+        a_birds['position'][0, 0] -= 0.001
+    elif centroid[1] < a_birds['position'][0, 1] and centroid[0] < a_birds['position'][0, 0]:
+        a_birds['position'][0, 1] += 0.001
+        a_birds['position'][0, 0] += 0.001
 
 def update(frame_number):
     # Pick position for regular birds
     for i in range(n_birds):
         decide_move(i)
     # Generate psuedo random movements
-    if frame_number % 4 == 0:
-        a_birds['position'][0,0] += 0.001
-    else:
-        a_birds['position'][0,1] += 0.001
+    a_decide_move()
 
     # Update the scatter collection, with the new position
     scat.set_offsets(birds['position'])
     a_scat.set_offsets(a_birds['position'])
-
-
 
 
 
