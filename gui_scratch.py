@@ -42,6 +42,7 @@ def update(frame_number):
             birds['position'][i, 0] += 0.001
         elif a_birds['position'][0,1] == birds['position'][i, 1] and a_birds['position'][0, 0] < birds['position'][i, 0]:
             birds['position'][i, 0] -= 0.001
+            #diag axis logic
         elif birds['position'][i,1] > a_birds['position'][0,1] and birds['position'][i, 0] > a_birds['position'][0, 0]:
             birds['position'][i, 1] -= 0.001
             birds['position'][i, 0] -= 0.001
