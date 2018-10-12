@@ -1,6 +1,6 @@
 import sys
 import socket
-import Message
+from Message import Message
 
 class serverPC:
 
@@ -54,11 +54,10 @@ class serverPC:
 #respond to new host w/ # of other hosts on network
 #send NHST message w/ NewHost addr as payload to all existing hosts
 #create new host message
-	def run(self, address, port, allowedClients):
+	def run(self, ip_address, port, allowedClients):
 		#create recieving addr
-		addr = address, int(port)
 		#Bind socket to addr
-		self.servSock.bind(addr)
+		self.servSock.bind((ip_address, int(port)))
 		self.servSock.listen(1)
 		#Accept connection
 		while True:
@@ -79,10 +78,22 @@ class serverPC:
 				print('cool - received CREQ message')
 				#Allocate bird area call outside area function
 				payload = "Bird Area," + ','.join(self.host_addrs)
-				message = Message("OKAY", addr, payload)
+				message = Message("OKAY", ip_address, payload)
 				conn.send(message.generateByteMessage())
-				conn.close()
-				self.host_addrs.append(client_ip)
+				new_message = self.parseMessage(conn)
+				if new_message.type == 'LHST':
+					payload_array = new_message.payload.split(',')
+					print(len(payload_array))
+					if len(payload_array) > 0:
+						#handle multipe ips
+						for dead_ip in payload_array:
+							if(dead_ip != ''):
+								self.host_addrs.remove(dead_ip)
+					conn.close()
+					self.host_addrs.append(client_ip)
+				else:
+					print('Invalid message type received - LHST expected, message of type ' + message.type + ' received.')
+					conn.close()
 				#serverPC received CREQ message from new connection
 				#now, need to send out NHST message to all existing hosts
 				#once all existing hosts have responded with ACKN, send OKAY message to new connection
@@ -94,7 +105,6 @@ class serverPC:
 
 
 	def readConfig(self):
-		print("here")
 		confFileName = sys.argv[1]
 		file = open(confFileName, 'r')
 		hostChecker = []
@@ -107,6 +117,7 @@ class serverPC:
 			elif addr[0] == 'serverAddr':
 				serverAddr.append(line)
 		server = serverAddr[0].split()
+		print(server[1])
 		self.run(server[1], server[2], hostChecker)
 
 serverPC().readConfig()
