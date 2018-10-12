@@ -27,7 +27,7 @@ class Host:
             while True:
                 byte = sock.recv(1)
                 if len(byte) == 0:
-                    raise ConnectionError('Socket is closed')
+                    raise ConnectionError('Socket is closed - 1')
                 if byte == b'\n':
                     break
                 msg += byte
@@ -37,7 +37,7 @@ class Host:
             while True:
                 byte = sock.recv(1)
                 if len(byte) == 0:
-                    raise ConnectionError('Socket is closed')
+                    raise ConnectionError('Socket is closed - 2')
                 if byte == b'\n':
                     break
                 msg += byte
@@ -47,14 +47,15 @@ class Host:
             while True:
                 byte = sock.recv(1)
                 if len(byte) == 0:
-                    raise ConnectionError('Socket is closed')
+                    raise ConnectionError('Socket is closed - 3')
                 if byte == b'\n':
                     break
                 msg += byte
             payload = msg.decode()
             # create the message
             return Message(datatype, origin, payload)
-        except:
+        except ConnectionError as err:
+            print("Error: {0} ".format(err))
             # Error reading from socket
             print('uh oh - message not received')
             return None
@@ -71,34 +72,48 @@ class Host:
             payload_array = response_message.payload.split(',')
             self.host_area = payload_array[0]
             i = 1
+            lost_payload = ''
             while i < len(payload_array):
-                self.host_ips.append(payload_array[i])
+                #call to setupHostConnections()
+                #if above returns false or whatever then dont add, then tell serverPC_ip
+                # otherwise append
+                indicator = self.setupHostConnection(payload_array[i])
+                if(indicator == False):
+                    #dont add to list of ips and tell serverPC to remove from its list of ips
+                    lost_payload += payload_array[i]+","
+                else:
+                    self.host_ips.append(payload_array[i])
                 i += 1
+            del_message = Message('LHST', self.ip, lost_payload)
+            print('sent LHST to serverPC with payload: ' + lost_payload)
+            client_sock.sendall(del_message.generateByteMessage())
             # ready to call new function
-            self.setupHostConnections()
+            # here, all of the host connections have been set up
+            # need to start the listening thread and the work thread now
+            listening_thread = Thread(target=lambda: self.listeningPort())
+            listening_thread.daemon = True
+            listening_thread.start()
+            work_thread = Thread(target=lambda: self.processWork())
+            work_thread.daemon = True
+            work_thread.start()
         else:
             # invalid message type - can not connect to network
             print('Invalid message type received')
 
-    def setupHostConnections(self):
-        for host_ip in self.host_ips:
-            if host_ip != self.ip and host_ip != '':
-                host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                host_socket.connect((host_ip, 9090))
+    def setupHostConnection(self, host_ip):
+        if host_ip != self.ip and host_ip != '':
+            host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            indicator = host_socket.connect_ex((host_ip, 9090))
+            if indicator != 0:
+                return False
+            else:
                 new_host_msg = Message("NHST", self.ip, self.host_area)
                 host_socket.sendall(new_host_msg.generateByteMessage())
                 new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                 new_thread.daemon = True
                 new_thread.start()
                 self.connections.append(Connection(host_ip, host_socket, new_thread))
-        # here, all of the host connections have been set up
-        # need to start the listening thread and the work thread now
-        listening_thread = Thread(target=lambda: self.listeningPort())
-        listening_thread.daemon = True
-        listening_thread.start()
-        work_thread = Thread(target=lambda: self.processWork())
-        work_thread.daemon = True
-        work_thread.start()
+        return True
 
     def listeningPort(self):
         listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -108,6 +123,7 @@ class Host:
             new_conn_sock, (new_conn_ip, new_conn_port) = listening_socket.accept()
             message = self.parseMessage(new_conn_sock)
             if (message.type == 'NHST'):
+                print('Got NHST message!')
                 new_instruction = Instruction('NHST')
                 new_instruction.message = message
                 new_instruction.sock = new_conn_sock
@@ -187,7 +203,7 @@ class Host:
             user_input = input('Enter "quit" to end program: ')
             if user_input == 'quit':
                 main_thread.join()
-                print('almost quit...! good try')
+                print('Quitting...')
                 self.running = False
 
 class Connection:
@@ -208,3 +224,5 @@ class Instruction:
         self.type = type
         self.message = None
         self.sock = None
+
+Host('172.16.143.24', 9000, '172.16.135.204')
