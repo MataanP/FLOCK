@@ -3,69 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def move_xy(boid, a_boid):
-    if boid[0] == a_boid[0] and boid[1] < a_boid[1]:
-        boid = move_down(boid)
-    elif boid[0] == a_boid[0] and boid[1] > a_boid[1]:
-        boid = move_up(boid)
-    elif boid[1] == a_boid[1] and boid[0] < a_boid[0]:
-        boid = move_right(boid)
-    elif boid[1] == a_boid[1] and boid[0] > a_boid[0]:
-        boid = move_left(boid)
-
-#Split the diag movement to its own logic check
-def move_diag(boid, a_boid):
-    if boid[1] > a_boid[1] and boid[0] > a_boid[0]:
-        boid = move_bot_left(boid)
-    elif boid[1] > a_boid[1] and boid[0] < a_boid[0]:
-        boid = move_bot_right(boid)
-    elif boid[1] < a_boid[1] and boid[0] > a_boid[0]:
-        boid = move_top_left(boid)
-    elif boid[1] < a_boid[1] and boid[0] < a_boid[0]:
-        boid = move_top_right(boid)
-
-#Decide the most efficient move based on coordinates
-def decide_move(boid, a_boid):
-    if boid[0] == a_boid[0] or boid[1] == a_boid[1]:
-        move_xy(boid, a_boid)
-    else:
-        move_diag(boid, a_boid)
-
-steps = .001
-#horizontal/vertical movements
-#x coordinate postive shift, no y shift
-def move_right(arr):
-    arr[0] += steps
-
-#x coordinate negative shift, no y shift
-def move_left(arr):
-    arr[0] -= steps
-
-#no x shift, y coordinate positive shift
-def move_up(arr):
-    arr[1] += steps
-
-#no x shift, y coordinate negative shift
-def move_down(arr):
-    arr[1] -= steps
-
-
-#diagnoal movements
-def move_top_right(arr):
-    arr[0] += steps
-    arr[1] += steps
-
-def move_top_left(arr):
-    arr[0] -= steps
-    arr[1] += steps
-
-def move_bot_left(arr):
-    arr[0] -= steps
-    arr[1] -= steps
-
-def move_bot_right(arr):
-    arr[0] += steps
-    arr[1] -= steps
 
 # Create new Figure and an Axes which fills it.
 fig = plt.figure(figsize=(7, 7))
@@ -80,7 +17,7 @@ birds = np.zeros(n_birds, dtype=[('position', float, 2)])
 a_birds = np.zeros(a_n_birds, dtype=[('position', float, 2)])
 
 # Initialize the birds position
-birds['position'] = [[.4, .2], [.1, .2], [.4, .5], [.8, .1], [.4, .2]]
+birds['position'] = [[.5, .2], [.1, .5], [.5, .1], [.8, .5], [.4, .5]]
 a_birds['position'] = [[.5, .5]]
 
 # Construct the scatter which we will update during animation
@@ -95,11 +32,19 @@ a_scat = ax.scatter(a_birds['position'], a_birds['position'],
 def update(frame_number):
     # Pick a new position for birds
     #move right
-    birds['position'][:,0] += 0.001
-
+    #xy axis logic
+    for i in range(n_birds):
+        if a_birds['position'][0,0] == birds['position'][i, 0] and a_birds['position'][0,1] > birds['position'][i,1]:
+            birds['position'][i,1] += 0.001
+        elif a_birds['position'][0, 0] == birds['position'][i, 0] and a_birds['position'][0, 1] < birds['position'][i, 1]:
+            birds['position'][i,1] -= 0.001
+        elif a_birds['position'][0,1] == birds['position'][i, 1] and a_birds['position'][0,0] > birds['position'][i, 0]:
+            birds['position'][i, 0] += 0.001
+        elif a_birds['position'][0,1] == birds['position'][i, 1] and a_birds['position'][0, 0] < birds['position'][i, 0]:
+            birds['position'][i, 0] -= 0.001
     # Update the scatter collection, with the new position
     scat.set_offsets(birds['position'])
-    print(birds['position'][:,0])
+
 
 # Construct the animation, using the update function as the animation
 # director.
