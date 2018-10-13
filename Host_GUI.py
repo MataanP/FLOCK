@@ -38,27 +38,35 @@ a_scat = ax.scatter(a_birds['position'], a_birds['position'],
                     facecolors='red', marker=">")
 
 def decide_move(i):
-    if a_birds['position'][0, 0] == birds['position'][i, 0] and a_birds['position'][0, 1] > birds['position'][i, 1]:
-        birds['position'][i, 1] += 0.001
-    elif a_birds['position'][0, 0] == birds['position'][i, 0] and a_birds['position'][0, 1] < birds['position'][i, 1]:
-        birds['position'][i, 1] -= 0.001
-    elif a_birds['position'][0, 1] == birds['position'][i, 1] and a_birds['position'][0, 0] > birds['position'][i, 0]:
-        birds['position'][i, 0] += 0.001
-    elif a_birds['position'][0, 1] == birds['position'][i, 1] and a_birds['position'][0, 0] < birds['position'][i, 0]:
-        birds['position'][i, 0] -= 0.001
-        # diag axis logic
-    elif birds['position'][i, 1] > a_birds['position'][0, 1] and birds['position'][i, 0] > a_birds['position'][0, 0]:
-        birds['position'][i, 1] -= 0.001
-        birds['position'][i, 0] -= 0.001
-    elif birds['position'][i, 1] > a_birds['position'][0, 1] and birds['position'][i, 0] < a_birds['position'][0, 0]:
-        birds['position'][i, 0] += 0.001
-        birds['position'][i, 1] -= 0.001
-    elif birds['position'][i, 1] < a_birds['position'][0, 1] and birds['position'][i, 0] > a_birds['position'][0, 0]:
-        birds['position'][i, 1] += 0.001
-        birds['position'][i, 0] -= 0.001
-    elif birds['position'][i, 1] < a_birds['position'][0, 1] and birds['position'][i, 0] < a_birds['position'][0, 0]:
-        birds['position'][i, 1] += 0.001
-        birds['position'][i, 0] += 0.001
+    """
+    :param i: this is the ith bird's coordinates in a 1D array of birds
+    :return: a change of coordinates of bird i.
+
+    The logic runs such that if x-y movement is most efficient, it occurs first.
+    Otherwise it prefers diag movement.
+    """
+    if birds['position'][i, 0] == a_birds['position'][0, 0] or birds['position'][i, 1] == a_birds['position'][0, 1]:
+        if a_birds['position'][0, 1] > birds['position'][i, 1]:
+            birds['position'][i, 1] += 0.001
+        elif a_birds['position'][0, 1] < birds['position'][i, 1]:
+            birds['position'][i, 1] -= 0.001
+        elif a_birds['position'][0, 0] > birds['position'][i, 0]:
+            birds['position'][i, 0] += 0.001
+        elif a_birds['position'][0, 0] < birds['position'][i, 0]:
+            birds['position'][i, 0] -= 0.001
+    else:
+        if birds['position'][i, 1] > a_birds['position'][0, 1] and birds['position'][i, 0] > a_birds['position'][0, 0]:
+            birds['position'][i, 1] -= 0.001
+            birds['position'][i, 0] -= 0.001
+        elif birds['position'][i, 1] > a_birds['position'][0, 1] and birds['position'][i, 0] < a_birds['position'][0, 0]:
+            birds['position'][i, 0] += 0.001
+            birds['position'][i, 1] -= 0.001
+        elif birds['position'][i, 1] < a_birds['position'][0, 1] and birds['position'][i, 0] > a_birds['position'][0, 0]:
+            birds['position'][i, 1] += 0.001
+            birds['position'][i, 0] -= 0.001
+        elif birds['position'][i, 1] < a_birds['position'][0, 1] and birds['position'][i, 0] < a_birds['position'][0, 0]:
+            birds['position'][i, 1] += 0.001
+            birds['position'][i, 0] += 0.001
 
 def a_decide_move():
     centroid = np.rint(measurements.center_of_mass(birds['position']))
