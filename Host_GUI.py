@@ -17,8 +17,8 @@ ax.set_xlim(x_min, x_min + host_range), ax.set_xticks([])
 ax.set_ylim(0, host_range), ax.set_yticks([])
 
 # Create bird data
-n_birds = 7
-a_n_birds = 1
+n_birds = birds['position'].size
+a_n_birds = a_birds['position'].size
 birds = np.zeros(n_birds, dtype=[('position', float, 2)])
 a_birds = np.zeros(a_n_birds, dtype=[('position', float, 2)])
 
