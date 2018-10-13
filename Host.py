@@ -1,7 +1,7 @@
 from threading import Thread
 from Message import Message
 import socket
-
+import HostInfo
 
 class Host:
 
@@ -16,8 +16,10 @@ class Host:
         self.host_ips = []
         self.connections = []
         self.work_queue = []
+        self.all_alphas = []
         # to 'pop' off the first thing in queue, use workQueue.pop(0) to pop off + return thing at index 0
         # to add things to the workQueue, use workQueue.append(thing)
+        self.host_info = HostInfo(x_min, x_max)
         self.running = True
         self.updated = False
         self.updates_received = []  # this will be for keeping track of what host we've received an HUPD from
@@ -99,6 +101,7 @@ class Host:
             listening_thread.start()
 
             #need to pass neighbor updates somewhere / use them somewhere
+            #create host info object
 
             work_thread = Thread(target=lambda: self.processWork())
             work_thread.daemon = True
@@ -170,26 +173,29 @@ class Host:
                 if instruction.type == 'Do Math':
                     self.updated = False
                     #print('Doing Math')
-                # run calculations
+                    # run calculations
                 elif instruction.type == 'Send HUPD':
                     # broadcast out this host's HUPD
                     msg = 'msg'
+                    all_l, all_r = self.host_info.get_our_backup()
+                    all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
                     #Missing functions to make payload in info host
-                    payload = "PAYLOAD MISSING"
-                    hupd_message = Message("HUPD", self.ip, payload)
-                    for connections in self.connections:
-                        connections.Connection.sock.send(hupd_message)
+                    payload = self.host_info.my_aboids + '\0' + self.host_info.l_halo + '\0' + self.host_info.r_halo + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0'
+                    our_update = Message("HUPD", self.ip, payload)
+                    for connection in self.connections:
+                        connection.sock.sendall(our_update.generateByteMessage())
                     #print('Broadcasting Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
                     msg = 'msg'
-                    for current_ips in self.connections:
-                        for recvd in self.updates_received:
-                            if current_ips == recvd:
-
+                    while len(self.updates_received) != len(self.connections):
+                        msg = 'wait'
                     #print('Receiving all HUPDs')
                     # only set to true once all updates have been received
                     self.updated = True
+                    self.updates_received = []
+                    #make sure to hand self.all_alphas to self.host_info before resetting
+                    self.all_alphas = []
                 elif instruction.type == 'NHST':
                     # run a function to add the new host ip to the list of host ip + add new host connection to the list of connections
 
@@ -204,7 +210,7 @@ class Host:
                     new_host_min_x = payload_array[0]
                     new_host_max_x = payload_array[1]
                     #once we have HostInfo implemented, need to pass this info somewhere to check if new host is a neighbor
-                    #waiting for HostInfo class stuff
+                    #waiting for host_info class stuff
                     self.host_ips.append(new_host_ip)
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
@@ -231,9 +237,26 @@ class Host:
         while self.running == True:
             message = self.parseMessage(host_sock)
             if message.type == 'HUPD':
+                host_ip = message.origin
+                payload = message.payload.split('\0')
+                host_alphas = payload[0]
+                host_l_halo = payload[1]
+                host_r_halo = payload[2]
+                host_all_l = payload[3]
+                host_all_r = payload[4]
+                l_alpha_backup = payload[5]
+                r_alpha_backup = payload[6]
                 # pass message payload somewhere so they can be used for next calculcations
-                self.updates_received.append(message.origin)
-
+                if self.l_neighbor == host_ip:
+                    self.host_info.n_l_halo = host_r_halo
+                    self.host_info.l_backup = host_all_r
+                    self.host_info.l_backup_alphas = r_alpha_backup
+                elif self.r_neightbor == host_ip:
+                    self.host_info.n_r_halo = host_l_halo
+                    self.host_info.r_backup = host_all_l
+                    self.host_info.r_backup_alphas = l_alpha_backup
+                self.all_alphas.append(host_alphas)
+                self.updates_received.append(host_ip)
                 while (self.updated != True):
                     # wait
                     wait = 'wait'
