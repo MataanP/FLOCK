@@ -11,6 +11,8 @@ class Host:
         self.serverPC_ip = server_ip
         self.x_min = ''
         self.x_max = ''
+        self.l_neighbor = ''
+        self.r_neightbor = ''
         self.host_ips = []
         self.connections = []
         self.work_queue = []
@@ -95,6 +97,9 @@ class Host:
             listening_thread = Thread(target=lambda: self.listeningPort())
             listening_thread.daemon = True
             listening_thread.start()
+
+            #need to pass neighbor updates somewhere / use them somewhere
+
             work_thread = Thread(target=lambda: self.processWork())
             work_thread.daemon = True
             work_thread.start()
@@ -122,9 +127,12 @@ class Host:
                     curr_host_ip = area_message.origin
                     host_min_x = payload_array[0]
                     host_max_x = payload_array[1]
-                    #need to compare curr host's min and max with this host's min and max
-                    #need to wait to set neighbor logic for now because we need to pass this to whatever stores the logic
-
+                    if self.min_x == host_max_x:
+                        #this means the host is this host's l_neighbor
+                        self.l_neighbor = curr_host_ip
+                    elif host_min_x == 0:
+                        #this means the host is this new host's r_neighbor
+                        self.r_neightbor = curr_host_ip
                 else:
                     # invalid message type - can not connect to network
                     print('Invalid message type received')
