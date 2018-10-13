@@ -9,7 +9,8 @@ class Host:
         self.ip = ip
         self.port = port
         self.serverPC_ip = server_ip
-        self.host_area = 'boid area'
+        self.x_min = ''
+        self.x_max = ''
         self.host_ips = []
         self.connections = []
         self.work_queue = []
@@ -87,6 +88,7 @@ class Host:
             del_message = Message('LHST', self.ip, lost_payload)
             print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
+
             # ready to call new function
             # here, all of the host connections have been set up
             # need to start the listening thread and the work thread now
@@ -107,8 +109,27 @@ class Host:
             if indicator != 0:
                 return False
             else:
-                new_host_msg = Message("NHST", self.ip, self.host_area)
+                #need to replace self.host_area with the self.min_x:self.max_x once we implement
+                host_area = self.x_min + ':' + self.x_max
+                new_host_msg = Message("NHST", self.ip, host_area)
                 host_socket.sendall(new_host_msg.generateByteMessage())
+                #receive new AREA Message - this tells us this hosts' min_x and max_x for determining if they are this host's neighbor
+                area_message = self.parseMessage(client_sock)
+                if(area_message.type == 'AREA'):
+                    #correct message received
+                    print('AREA message received')
+                    payload_array = area_message.payload.split(':')
+                    curr_host_ip = area_message.origin
+                    host_min_x = payload_array[0]
+                    host_max_x = payload_array[1]
+                    #need to compare curr host's min and max with this host's min and max
+                    #need to wait to set neighbor logic for now because we need to pass this to whatever stores the logic
+
+                else:
+                    # invalid message type - can not connect to network
+                    print('Invalid message type received')
+
+
                 new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                 new_thread.daemon = True
                 new_thread.start()
@@ -163,7 +184,19 @@ class Host:
                     self.updated = True
                 elif instruction.type == 'NHST':
                     # run a function to add the new host ip to the list of host ip + add new host connection to the list of connections
+
+                    #respond to the new host with an AREA Message
+                    host_area = self.x_min + ':' + self.x_max
+                    area_message = Message('AREA', self.ip, host_area)
+                    #send the AREA message on the socket
+                    instruction.sock.sendall(area_message.generateByteMessage())
+
                     new_host_ip = instruction.message.origin
+                    payload_array = instruction.message.payload.split(':')
+                    new_host_min_x = payload_array[0]
+                    new_host_max_x = payload_array[1]
+                    #once we have HostInfo implemented, need to pass this info somewhere to check if new host is a neighbor
+                    #waiting for HostInfo class stuff
                     self.host_ips.append(new_host_ip)
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
