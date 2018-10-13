@@ -145,10 +145,19 @@ class Host:
                 elif instruction.type == 'Send HUPD':
                     # broadcast out this host's HUPD
                     msg = 'msg'
+                    #Missing functions to make payload in info host
+                    payload = "PAYLOAD MISSING"
+                    hupd_message = Message("HUPD", self.ip, payload)
+                    for connections in self.connections:
+                        connections.Connection.sock.send(hupd_message)
                     #print('Broadcasting Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
                     msg = 'msg'
+                    for current_ips in self.connections:
+                        for recvd in self.updates_received:
+                            if current_ips == recvd:
+
                     #print('Receiving all HUPDs')
                     # only set to true once all updates have been received
                     self.updated = True
