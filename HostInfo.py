@@ -115,7 +115,7 @@ class HostInfo:
     return numpy_array
 
 
-	def numpy_array_to_string(self, nparray):
+  def numpy_array_to_string(self, nparray):
     """
     Method to make np arrays compatible for sending over the wire
     """
