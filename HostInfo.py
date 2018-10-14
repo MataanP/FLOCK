@@ -16,11 +16,6 @@ class HostInfo:
 		self.l_neighbor_ip = ''
 		self.r_neighbor_ip = ''
 
-	def processUpdate(self, message):
-	    update_origin = message.origin
-	    update_payload = message.payload
-    	#we need to determine if the message comes from one of our neighbors
-
 	def get_our_backup(self):
 	    """
 	    returns a tuple of numpy arrays, the first is a backup of all boids
