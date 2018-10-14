@@ -1,7 +1,7 @@
 from threading import Thread
 from Message import Message
 import socket
-import HostInfo
+from HostInfo import HostInfo
 
 class Host:
 
@@ -66,7 +66,7 @@ class Host:
         if (response_message.type == 'OKAY'):
             print('OKAY message received')
             payload_array = response_message.payload.split(',')
-            self.x_min = payload_array[0]
+            self.x_min = int(payload_array[0])
             self.x_max = self.x_min + self.x_scalar
             i = 1
             lost_payload = ''
@@ -80,7 +80,7 @@ class Host:
             del_message = Message('LHST', self.ip, lost_payload)
             print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
-            self.host_info = HostInfo(self.x_min, self.x_max)   #Instantiate HostInfo module
+            self.host_info = HostInfo(self.x_min, self.x_max)
             # need to start the listening thread and the work thread now
             listening_thread = Thread(target=lambda: self.listeningPort())
             listening_thread.daemon = True
@@ -271,4 +271,4 @@ class Instruction:
         self.message = None
         self.sock = None
 
-Host('172.16.143.24', 9000, '172.16.135.204')
+Host('10.1.10.131', 9000, '10.1.10.72')

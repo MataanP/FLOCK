@@ -23,9 +23,9 @@ class HostInfo:
 	    """
 	    left_backup = np.array([])
 	    right_backup = np.array([])
-	    middle_split = (x_max-x_min)/2
-	    for coordinates in np.nditer(my_boids):
-	      if coordinates[0] <=middle_split:
+	    middle_split = (self.x_max-self.x_min)/2
+	    for coordinates in np.nditer(self.my_boids):
+	      if coordinates[0] <= middle_split:
 	        np.append(left_backup,coordinates)
 	      else:
 	        np.append(right_backup,coordinates)
@@ -38,8 +38,8 @@ class HostInfo:
 	    """
 	    left_alpha_backup = np.array([])
 	    right_alpha_backup = np.array([])
-	    middle_split = (x_max-x_min)/2
-	    for coordinates in np.nditer(my_boids):
+	    middle_split = (self.x_max-self.x_min)/2
+	    for coordinates in np.nditer(self.my_boids):
 	      if coordinates[0] <=middle_split:
 	        np.append(left_alpha_backup,coordinates)
 	      else:
@@ -52,26 +52,26 @@ class HostInfo:
 	    A method that updates the halo given to us by the left host, retrieved as payload in HUPD
 	    """
 	    halo_array = self.string_to_numpy_array(string_of_halo)
-	    n_l_halo = halo_array
+	    self.n_l_halo = halo_array
 
 	def update_n_r_halo(self, string_of_halo):
 	    """
 	    A method that updates the halo given to us by the right host, retrieved as payload in HUPD
 	    """
 	    halo_array = self.string_to_numpy_array(string_of_halo)
-	    n_r_halo = halo_array
+	    self.n_r_halo = halo_array
 
 	def update_my_boids(self, new_my_boids):
 	    """
 	    Method to update my boids, should only really be accessed by the boid calculation class
 	    """
-	    my_boids = new_my_boids
+	    self.my_boids = new_my_boids
 
 	def update_my_aboids(self,new_my_aboids):
 	    """
 	    Method to update my Aboids, should only really be accessed by the boid calculation class
 	    """
-	    my_aboids = new_my_aboids
+	    self.my_aboids = new_my_aboids
 
 	def update_all_aboids(self, a_boid_string_list):
 	    """
@@ -81,7 +81,7 @@ class HostInfo:
 	    numpy_array = np.array([])
 	    for string in a_boid_string_list:
 	      np.append(numpy_array, self.string_to_numpy_array(string))
-	    all_aboids = numpy_array
+	    self.all_aboids = numpy_array
 
 	def create_left_halo(self):
 		"""
