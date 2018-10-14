@@ -81,7 +81,8 @@ class HostInfo:
 
   def update_all_aboids(self, a_boid_string_list):
     """
-    Method to update all a boids, should be a compilation of all a boids from host updates. Should receive a list of strings that are the first part of payload from each HUPD
+    Method to update all a boids, should be a compilation of all a boids from host updates.
+	Should receive a list of strings that are the first part of payload from each HUPD
     """
     numpy_array = np.array([])
     for string in a_boid_string_list:

@@ -61,6 +61,7 @@ class Host:
         client_sock.connect((self.serverPC_ip, 9090))
         message = Message('CREQ', self.ip, '\0')
         client_sock.sendall(message.generateByteMessage())
+        print('Sent CREQ message to serverPC at ' + self.serverPC_ip)
         response_message = self.parseMessage(client_sock)
         if (response_message.type == 'OKAY'):
             print('OKAY message received')
@@ -88,7 +89,7 @@ class Host:
             work_thread.daemon = True
             work_thread.start()
         else:
-            print('Invalid message type received')
+            print('Invalid message type received from ' + message.origin)
 
     def setupHostConnection(self, host_ip):
         if host_ip != self.ip and host_ip != '':
@@ -100,10 +101,10 @@ class Host:
                 host_area = self.x_min + ':' + self.x_max
                 new_host_msg = Message("NHST", self.ip, host_area)
                 host_socket.sendall(new_host_msg.generateByteMessage())
-                print('NHST message sent to Host ' + host_ip)
+                print('NHST message sent to Host at ' + host_ip)
                 area_message = self.parseMessage(client_sock)
                 if(area_message.type == 'AREA'):
-                    print('AREA message received')
+                    print('AREA message received from ' + area_message.origin)
                     payload_array = area_message.payload.split(':')
                     curr_host_ip = area_message.origin
                     host_min_x = payload_array[0]
@@ -120,7 +121,7 @@ class Host:
                     self.connections.append(Connection(host_ip, host_socket, new_thread))
                     return True
                 else:
-                    print('Invalid message type received - Host corrupt')
+                    print('Invalid message type received from ' + area_message.origin + ' - Host corrupt')
                     return False
         return True
 
@@ -138,7 +139,8 @@ class Host:
                 new_instruction.sock = new_conn_sock
                 self.work_queue.append(new_instruction)
             else:
-                print('Invalid Message Type received')
+                print('Invalid Message Type received from ' + message.origin)
+                new_conn_sock.close()
         return
 
     def processWork(self):
@@ -166,42 +168,37 @@ class Host:
                     # only set to true once all updates have been received
                     self.updated = True
                     self.updates_received = []
-                    #make sure to hand self.all_alphas to self.host_info before resetting
                     # ??? what format of string does it need?
-                    #self.host_info.update_all_aboids(self.all_alphas)
+                    self.host_info.update_all_aboids(self.all_alphas)
                     self.all_alphas = []
                 elif instruction.type == 'NHST':
-                    # run a function to add the new host ip to the list of host ip + add new host connection to the list of connections
-
-                    #respond to the new host with an AREA Message
-                    host_area = self.x_min + ':' + self.x_max
-                    area_message = Message('AREA', self.ip, host_area)
-                    #send the AREA message on the socket
-                    instruction.sock.sendall(area_message.generateByteMessage())
-
                     new_host_ip = instruction.message.origin
                     payload_array = instruction.message.payload.split(':')
                     new_host_min_x = payload_array[0]
                     new_host_max_x = payload_array[1]
-                    #once we have HostInfo implemented, need to pass this info somewhere to check if new host is a neighbor
-                    #waiting for host_info class stuff
+                    if self.x_max == new_host_min_x:
+                        self.r_neighbor = new_host_ip
+                        self.host_info.r_neighbor_ip = new_host_ip
+                    if self.x_min == 0:
+                        self.l_neighbor = new_host_ip
+                        self.host_info.l_neighbor_ip = new_host_ip
                     self.host_ips.append(new_host_ip)
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
                     new_thread.start()
                     self.connections.append(Connection(new_host_ip, instruction.sock, new_thread))
-
+                    host_area = self.x_min + ':' + self.x_max
+                    area_message = Message('AREA', self.ip, host_area)
+                    instruction.sock.sendall(area_message.generateByteMessage())
+                    print('Sent AREA message to ' + new_host_ip)
                 elif instruction.type == 'LHST':
                     for host_ip in self.host_ips:
                         if host_ip == instruction.message.origin:
                             self.host_ips.remove(host_ip)
-                    # here, host_ip was removed from list of host_ips
                     for connection in self.connections:
                         if connection.ip == instruction.message.origin:
                             connection.close()
                             self.connections.remove(connection)
-                # here, the connection for the host was closed + connection was removed from list of connections
-
                 else:
                     print('Invalid Instruction - skipping...')
 
@@ -211,6 +208,7 @@ class Host:
         while self.running == True:
             message = self.parseMessage(host_sock)
             if message.type == 'HUPD':
+                print('Got HUPD from ' + message.origin)
                 self.updated = False
                 host_ip = message.origin
                 payload = message.payload.split('\0')
@@ -221,7 +219,6 @@ class Host:
                 host_all_r = payload[4]
                 l_alpha_backup = payload[5]
                 r_alpha_backup = payload[6]
-                # pass message payload somewhere so they can be used for next calculcations
                 if self.l_neighbor == host_ip:
                     self.host_info.n_l_halo = host_r_halo
                     self.host_info.l_backup = host_all_r
@@ -230,19 +227,18 @@ class Host:
                     self.host_info.n_r_halo = host_l_halo
                     self.host_info.r_backup = host_all_l
                     self.host_info.r_backup_alphas = l_alpha_backup
-
                 #may need to parse the different Alpha coordinates before appending to all_alphas
                 self.all_alphas.append(host_alphas)
                 self.updates_received.append(host_ip)
                 while (self.updated != True):
-                    # wait
                     wait = 'wait'
             elif message.type == 'LHST':
+                print('Got LHST from ' + message.origin)
                 new_instruction = Instruction('LHST')
                 new_instruction.message = message
                 self.work_queue.append(new_instruction)
             else:
-                print('Invalid message type received')
+                print('Invalid message type received from ' + message.origin)
         return
 
     def run(self):
