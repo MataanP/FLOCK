@@ -1,35 +1,16 @@
 '''
 COMMUNICATIONS PROTOCOL
 
-1a. New host sends CREQ to serverPC
-1b. serverPC sends NHST message to all existing hosts
-1c. all hosts receive NHST, attempt to connect to new host
-1d. once connected to new host, existing host sends ACKN back to serverPC
-1e. if existing host can't connect to new host, existing host is unresponsive + should be disconnected
-1f. once all existing hosts have responded to serverPC with ACKN, serverPC sends OKAY to new host
-2a. serverPC sends STEP message to all hosts, starting new timestep
-2b. all hosts receive STEP message, run their timestep calculations, and broadcast their HUPD to all other hosts
-2c. when a host has received a HUPD from all other hosts, the host sends serverPC a SYNC message
-2d. when serverPC has received SYNC from all hosts, it is safe to proceed to next timestep
-2e. if a host doesn't send SYNC, it is unresponsive + should be disconnected
-3a. Existing host sends serverPC a CCLS messag to disconnect from network
-3b. serverPC sends all other hosts a LHST message
-3c. all hosts receive LHST message, close connection to lost host + forget about lost host, reply to serverPC with ACKN
-3d. once serverPC receives ACKN from all other hosts, it is safe to proceed to next timestep
-4a. Existing host doesn't reply to serverPC/is unresponsive: serverPC jumps to step 3b, with unresponsize host as lost host
+sections of each message are seperated by '\n'
+information within each section is separated by '\0'
 
-information in a message is seperated by '\r'
-the end of a message is marked by a '\n'
-
-1. connection request = type:CREQ, origin:addr of host sending request, payload:alias/identifier
-2. new host accepted = type:NHST, origin:serverPC addr, payload:new host addr
-3. acknowledgement to serverPC = type:ACKN, origin:addr of host responding, payload:?
-4. connection accepted = type:OKAY, origin:serverPC addr, payload:new host addr
-5. begin new timestep = type:STEP, origin:serverPC addr, payload:?
-6. host timestep update = type:HUPD, origin:addr of host sending update, payload: update info
-7. host fully synched = type:SYNC, origin:addr of host updated, payload:?
-8. close connection = type:CCLS, origin:addr of host closing connection, payload:none
-9. lost host relay = type:LHST, origin:serverPC addr, payload:lost host addr
+1. connection request = type:CREQ, origin:addr of host sending request, payload:\0
+2. okay response = type:OKAY, origin:addr of serverPC, payload:BOID area\0list of host ips separated by \0
+3. new host connected (host to serverPC) = type:NHST, origin:addr of new host, payload:list of all dead host ips separated by \0
+4. new host connected (host to host) = type:NHST, origin:addr of new host, payload:BOID area
+5. host area = type:AREA, origin:addr of host sending, payload:BOID area
+6. host update = type:HUPD, origin:addr of host sending, payload:my_boids\0l_halo\0r_halo\0all_l\0all_r\0all_l_alphas\0all_r_alphas\0
+7. lost host = type:LHST, origin:addr of host leaving, payload:\0
 
 '''
 
