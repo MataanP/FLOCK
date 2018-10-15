@@ -145,19 +145,37 @@ class HostInfo:
 				np.append(right_halo_array, nparray)
 		self.r_halo = right_halo_array
 
-	def string_to_numpy_array(self, string):
-	    numpy_array = np.fromstring(string)
-	    return numpy_array
+	def string_to_numpy_array(self, array_string):
+		comma_counter = 0
+		for i in range(0,len(array_string)-1):
+			if array_string[i:i+1] == ",":
+				comma_counter+=1
 
+		array = np.zeros(comma_counter-1, dtype=[('position', float, 2)])
+		current_comma = 0
+		array_iterator = 0
+		next_comma = array_string.find(",")
+		next_period = array_string.find(".")
+		while next_comma>=0:
+			x_int = array_string [current_comma+1:next_period]
+			y_int = array_string [next_period+1:next_comma]
+			array["position"][array_iterator,0] = x_int#[position] takes you into the x-y plane, array iterator goes through list of coordinates, 0 is x
+			array["position"][array_iterator,1] = y_int# 1 is y
+			current_comma = next_comma
+			next_comma = array_string.find("," next_comma+1)
+			array_iterator+=1
+	def numpy_array_to_string(self, numpy_array):
+		position_array = numpy_array["position"]
+		string_to_send
+		for i in range(len(position_array)):
+			position_array[i,0]
 
-	def numpy_array_to_string(self, nparray):
-	    """
-	    Method to make np arrays compatible for sending over the wire
-	    """
-	    string_form = np.array_str(nparray)
-	    return string_form
 
 	def run(self):
 		print('Starting GUI')
 		self.instantiate_our_boids()
 		self.gui = BoidGUI(self.my_boids, self.my_aboids)
+
+birds = np.zeros(n_birds, dtype=[('position', float, 2)])
+birds["position"] = [[3,4],[4,5],[5,6],[6,7],[7,8]]
+print(birds[0])
