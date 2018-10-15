@@ -2,6 +2,7 @@ import numpy as np
 class HostInfo:
 
 	def __init__(self, min, max):
+		#probably want to instantiate the boids and alpha boids within the new area inside this constructor...
 		self.x_min = min
 		self.x_max = max
 		self.my_boids = np.array([]) # READ HERE,initializes an empty numpy array. When adding boids: np.append(my_boids,np.array([x,y]))
