@@ -7,22 +7,23 @@ import sys
 class Host:
 
     def __init__(self, ip, port, server_ip):
-        self.ip = ip
-        self.port = port
-        self.serverPC_ip = server_ip
+        self.ip = ip #Hosts ip
+        self.port = port # Host port
+        self.serverPC_ip = server_ip #ServerPC ip the host is connecting to
         self.x_scalar = 50  #for incrementing the x_min to an x_max value
-        self.l_neighbor = ''
-        self.r_neighbor = ''
-        self.host_ips = []
-        self.connections = []
-        self.work_queue = []
-        self.all_alphas = []
-        self.running = True
+        self.l_neighbor = '' #Area of the shared area between the host and the left neighbor
+        self.r_neighbor = '' #Area shared between the host and the right neighbor
+        self.host_ips = [] #The list of all connected hosts on the network
+        self.connections = [] #A list of connection objects
+        self.work_queue = [] #The queue of instructions for the host to execute
+        self.all_alphas = [] #List of all host alphas
+        self.running = True #Running and updated are semaphores responsible for flagging when the program should execute
         self.updated = False
         self.updates_received = []  # this will be for keeping track of what host we've received an HUPD from
         self.run()
 
     def parseMessage(self, sock):
+        '''ParseMessage is responsible for recieving messages from sockets and and returning them as a string'''
         try:
             msg = b''
             while True:
@@ -57,15 +58,23 @@ class Host:
             return None
 
     def connectToServer(self):
+        """
+        This function initiaties the connection request and sends it to the serverPC to be verified as a host.
+        The function should then recieve an Okay message, and connect to all hosts sent in the message payload.
+        Once the host is connected it will begin the thread listening to the server and work threads
+        """
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_sock.bind((self.ip, self.port))
         client_sock.connect((self.serverPC_ip, 9090))
+        #create CREQ message
         message = Message('CREQ', self.ip, '\0')
         client_sock.sendall(message.generateByteMessage())
         print('Sent CREQ message to serverPC at ' + self.serverPC_ip)
+        #recieve response as string
         response_message = self.parseMessage(client_sock)
         if (response_message.type == 'OKAY'):
             print('OKAY message received')
+            #payload contains host area, and list of connected hosts
             payload_array = response_message.payload.split(',')
             self.x_min = int(payload_array[0])
             self.x_max = self.x_min + self.x_scalar
@@ -78,6 +87,7 @@ class Host:
                 else:
                     self.host_ips.append(payload_array[i])
                 i += 1
+            #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
             del_message = Message('LHST', self.ip, lost_payload)
             print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
@@ -93,6 +103,10 @@ class Host:
             print('Invalid message type received from ' + message.origin)
 
     def setupHostConnection(self, host_ip):
+        """
+        This function is responsible for connecting to all hosts on the network.
+        The host will also setup it's left and right neighbor and create the listening threads for host connections
+        """
         if host_ip != self.ip and host_ip != '':
             host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             indicator = host_socket.connect_ex((host_ip, 9090))
@@ -127,6 +141,10 @@ class Host:
         return True
 
     def listeningPort(self):
+        """
+        The listening port uses a binded socket to accept new incoming host connections.
+        Once accepted the function will add the NHST instruction to the work queue
+        """
         listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listening_socket.bind((self.ip, 9090))
         listening_socket.listen(1)
@@ -145,16 +163,22 @@ class Host:
         return
 
     def processWork(self):
+        """
+        processWork goes through the intruction objects in the work_queue
+        processWork prioritizes certain instructions in order to implement implicit
+        """
         while self.running == True:
             if len(self.work_queue) == 0:
                 self.work_queue = [Instruction('Do Math'), Instruction('Send HUPD'), Instruction('Receive All HUPDs')]
             else:
                 instruction = self.work_queue.pop(0)
                 if instruction.type == 'Do Math':
+                    #start calculations
                     self.updated = False
                     #print('Doing Math')
                     # run calculations
                 elif instruction.type == 'Send HUPD':
+                    #echo host update to all other hosts on the network
                     all_l, all_r = self.host_info.get_our_backup()
                     all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
                     payload = self.host_info.numpy_array_to_string(self.host_info.my_boids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0'
@@ -169,14 +193,16 @@ class Host:
                     # only set to true once all updates have been received
                     self.updated = True
                     self.updates_received = []
-                    # ??? what format of string does it need?
+                    # Once all updates are recieved update ABoid locations
                     self.host_info.update_all_aboids(self.all_alphas)
                     self.all_alphas = []
                 elif instruction.type == 'NHST':
+                    #New host tring to connect to network
                     new_host_ip = instruction.message.origin
                     payload_array = instruction.message.payload.split(':')
                     new_host_min_x = payload_array[0]
                     new_host_max_x = payload_array[1]
+                    #check if the new host is a neighbor
                     if self.x_max == new_host_min_x:
                         self.r_neighbor = new_host_ip
                         self.host_info.r_neighbor_ip = new_host_ip
@@ -184,20 +210,26 @@ class Host:
                         self.l_neighbor = new_host_ip
                         self.host_info.l_neighbor_ip = new_host_ip
                     self.host_ips.append(new_host_ip)
+                    #Start the thread that is listening to the socket connected to the new host
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
                     new_thread.start()
                     self.connections.append(Connection(new_host_ip, instruction.sock, new_thread))
                     host_area = self.x_min + ':' + self.x_max
+                    #send current host area to the newly connected host
                     area_message = Message('AREA', self.ip, host_area)
                     instruction.sock.sendall(area_message.generateByteMessage())
                     print('Sent AREA message to ' + new_host_ip)
                 elif instruction.type == 'LHST':
+                    #Host has disconnected to the network
                     for host_ip in self.host_ips:
                         if host_ip == instruction.message.origin:
+                            #remove host from list of connected ips
                             self.host_ips.remove(host_ip)
                     for connection in self.connections:
+                        #remove the connection object from list of known connections
                         if connection.ip == instruction.message.origin:
+                            #close the hosts socket and thread
                             connection.close()
                             self.connections.remove(connection)
                 else:
@@ -206,9 +238,16 @@ class Host:
         return
 
     def listenToHost(self, host_sock):
+        """
+        listenToHost recieves messages from other hosts
+        If a host update is received the host will check if it is a neighbor, and then update the neighbor halo region and backups
+        If a lost host message is recieved it will create the instruction type LHST and added to the queue
+        """
         while self.running == True:
+            #turn message into string
             message = self.parseMessage(host_sock)
             if message.type == 'HUPD':
+                #host update message payload
                 print('Got HUPD from ' + message.origin)
                 self.updated = False
                 host_ip = message.origin
@@ -221,10 +260,12 @@ class Host:
                 l_alpha_backup = payload[5]
                 r_alpha_backup = payload[6]
                 if self.l_neighbor == host_ip:
+                    #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
                     self.host_info.n_l_halo = host_r_halo
                     self.host_info.l_backup = host_all_r
                     self.host_info.l_backup_alphas = r_alpha_backup
                 elif self.r_neightbor == host_ip:
+                    #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
                     self.host_info.n_r_halo = host_l_halo
                     self.host_info.r_backup = host_all_l
                     self.host_info.r_backup_alphas = l_alpha_backup
@@ -234,6 +275,7 @@ class Host:
                 while (self.updated != True):
                     wait = 'wait'
             elif message.type == 'LHST':
+                #LHST message recieved meaning that the host must close that connected socket
                 print('Got LHST from ' + message.origin)
                 new_instruction = Instruction('LHST')
                 new_instruction.message = message
@@ -255,6 +297,9 @@ class Host:
 
 class Connection:
     def __init__(self, ip, sock, thread):
+        """
+        Connection objects are made up of host ip, sockets and threads so they can be differentiated
+        """
         self.ip = ip
         self.host_sock = sock
         self.host_thread = thread
@@ -267,6 +312,9 @@ class Connection:
 
 
 class Instruction:
+    """
+    Instruction objects are used to specify the instruction type, message and specific host socket
+    """
     def __init__(self, type):
         self.type = type
         self.message = None
