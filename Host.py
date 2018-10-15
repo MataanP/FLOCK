@@ -2,6 +2,7 @@ from threading import Thread
 from Message import Message
 import socket
 from HostInfo import HostInfo
+import sys
 
 class Host:
 
@@ -271,4 +272,11 @@ class Instruction:
         self.message = None
         self.sock = None
 
-Host('10.1.10.131', 9000, '10.1.10.72')
+def main():
+    if len(sys.argv)<4:
+        print("Usage: <YourIP> <YourPort> <ServerIP>")
+    else:
+        Host(sys.argv[1],int(sys.argv[2]),sys.argv[3])
+
+if __name__ == '__main__':
+    main()
