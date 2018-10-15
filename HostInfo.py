@@ -1,10 +1,15 @@
 import numpy as np
+import random
 class HostInfo:
 
 	def __init__(self, min, max):
 		#probably want to instantiate the boids and alpha boids within the new area inside this constructor...
 		self.x_min = min
 		self.x_max = max
+		self.y_min = 0
+		self.y_max = 50
+		self.num_boids = 5
+		self.num_aboids = 1
 		self.my_boids = np.array([]) # READ HERE,initializes an empty numpy array. When adding boids: np.append(my_boids,np.array([x,y]))
 		self.my_aboids = np.array([])
 		self.all_aboids = np.array([])
@@ -16,6 +21,34 @@ class HostInfo:
 		self.r_backup = np.array([])
 		self.l_neighbor_ip = ''
 		self.r_neighbor_ip = ''
+		self.instantiate_our_boids()
+
+	def instantiate_our_boids(self):
+		"""
+		instantiates all the my_boids and my_aboids
+		"""
+		boids = np.zeros(self.num_boids, dtype=[('position', float, 2)])
+		aboids = np.zeros(self.num_aboids, dtype=[('position', float, 2)])
+		temp_boids = []
+		temp_aboids = []
+		i = self.num_boids
+		while i > 0:
+			x = random.randint(self.x_min, self.x_max)
+			y = random.randint(self.y_min, self.y_max)
+			new_boid = [x, y]
+			temp_boids.append(new_boid)
+			i -= 1;
+		i = self.num_aboids
+		while i > 0:
+			x = random.randint(self.x_min, self.x_max)
+			y = random.randint(self.y_min, self.y_max)
+			new_a_boid = [x, y]
+			temp_aboids.append(new_a_boid)
+		boids['position'] = temp_boids
+		aboids['position'] = temp_aboids
+		self.my_boids = boids
+		self.my_aboids = aboids
+		
 
 	def get_our_backup(self):
 	    """

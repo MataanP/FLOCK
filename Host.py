@@ -113,8 +113,8 @@ class Host:
                     if self.min_x == host_max_x:
                         self.l_neighbor = curr_host_ip
                         self.host_info.l_neighbor_ip = curr_host_ip
-                    elif host_min_x == 0:
-                        self.r_neightbor = curr_host_ip
+                    if host_min_x == 0:
+                        self.r_neighbor = curr_host_ip
                         self.host_info.r_neighbor_ip = curr_host_ip
                     new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                     new_thread.daemon = True
