@@ -47,9 +47,7 @@ class serverPC:
 			#Error reading from socket
 			return None
 
-#TO DO
-#check IP
-#respond
+
 	def run(self, ip_address, port, allowedClients):
 		self.servSock.bind((ip_address, int(port)))
 		self.servSock.listen(1)
@@ -57,6 +55,7 @@ class serverPC:
 			conn, (client_ip, client_port) = self.servSock.accept()
 			x = 0
 			for client in allowedClients:
+				#check if incoming connection IP is allowed on to the network
 				print("Client info", client)
 				if client == client_ip:
 					print("This client is allowed to connect")
@@ -66,6 +65,7 @@ class serverPC:
 				print("This host does not have permission to connect with this network")
 				conn.close()
 			else:
+				#check if the host sent the proper CREQ message
 				message = self.parseMessage(conn)
 				if message.type == 'CREQ':
 					#Payload checking list of host addrs
@@ -73,6 +73,7 @@ class serverPC:
 					#Allocate bird area call outside area function
 					payload = str(self.max_xcoord) + ',' + ','.join(self.host_addrs)
 					message = Message("OKAY", ip_address, payload)
+					#send okay message containing the list of other connected IPs on the network
 					conn.send(message.generateByteMessage())
 					new_message = self.parseMessage(conn)
 					if new_message.type == 'LHST':
@@ -80,7 +81,7 @@ class serverPC:
 						payload_array = new_message.payload.split(',')
 						print(len(payload_array))
 						if len(payload_array) > 0:
-							#handle multipe ips
+							#Remove the disconnected IP from the list of currently connected hosts
 							for dead_ip in payload_array:
 								if(dead_ip != ''):
 									self.host_addrs.remove(dead_ip)
