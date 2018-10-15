@@ -56,19 +56,20 @@ class HostInfo:
 
 
 	def get_our_backup(self):
-	    """
+		"""
 	    returns a tuple of numpy arrays, the first is a backup of all boids
 	    in the left and the second is a backup of all boid in the right
 	    """
-	    left_backup = np.array([])
-	    right_backup = np.array([])
-	    middle_split = (self.x_max-self.x_min)/2
-	    for coordinates in np.nditer(self.my_boids):
-	      if coordinates[0] <= middle_split:
-	        np.append(left_backup,coordinates)
-	      else:
-	        np.append(right_backup,coordinates)
-	    return (self.numpy_array_to_string(left_backup),self.numpy_array_to_string(right_backup))
+		left_backup = np.array([])
+		right_backup = np.array([])
+		middle_split = (self.x_max-self.x_min)/2
+		for index in range(self.my_boids):
+			if self.my_boids['position'][index, 0] <= middle_split:
+				np.append(left_backup, self.my_boids['position'][index])
+			else:
+				np.append(right_backup, self.my_boids['position'][index])
+		return (self.numpy_array_to_string(left_backup),self.numpy_array_to_string(right_backup))
+
 
 	def get_our_alpha_backup(self):
 	    """
