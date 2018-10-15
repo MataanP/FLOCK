@@ -6,7 +6,8 @@ from scipy.ndimage import measurements
 
 class BoidGUI:
 
-    def __init__(self, my_boids, my_aboids):
+    def __init__(self, host_info, my_boids, my_aboids):
+        self.host_info = host_info
         self.x_min = 0
         self.x_max = 50
         self.y_min = 0
