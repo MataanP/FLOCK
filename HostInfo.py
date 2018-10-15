@@ -1,5 +1,7 @@
 import numpy as np
 import random
+from BoidGUI import BoidGUI
+
 class HostInfo:
 
 	def __init__(self, min, max):
@@ -21,7 +23,9 @@ class HostInfo:
 		self.r_backup = np.array([])
 		self.l_neighbor_ip = ''
 		self.r_neighbor_ip = ''
-		self.instantiate_our_boids()
+		self.running = True
+		print('about to run')
+		self.run()
 
 	def instantiate_our_boids(self):
 		"""
@@ -44,11 +48,12 @@ class HostInfo:
 			y = random.randint(self.y_min, self.y_max)
 			new_a_boid = [x, y]
 			temp_aboids.append(new_a_boid)
+			i-= 1
 		boids['position'] = temp_boids
 		aboids['position'] = temp_aboids
 		self.my_boids = boids
 		self.my_aboids = aboids
-		
+
 
 	def get_our_backup(self):
 	    """
@@ -150,3 +155,8 @@ class HostInfo:
 	    """
 	    string_form = np.array_str(nparray)
 	    return string_form
+
+	def run(self):
+		print('Starting GUI')
+		self.instantiate_our_boids()
+		self.gui = BoidGUI(self.my_boids, self.my_aboids)

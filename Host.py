@@ -291,7 +291,6 @@ class Host:
         while (self.running == True):
             user_input = input('Enter "quit" to end program: ')
             if user_input == 'quit':
-                main_thread.join()
                 print('Quitting...')
                 self.running = False
 
