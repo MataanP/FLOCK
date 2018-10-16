@@ -197,4 +197,4 @@ class HostInfo:
 	def run(self):
 		print('Starting GUI')
 		self.instantiate_our_boids()
-		self.gui = BoidGUI(self.my_boids, self.my_aboids)
+		self.gui = BoidGUI(self, self.my_boids, self.my_aboids)
