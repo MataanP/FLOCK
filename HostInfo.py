@@ -100,11 +100,11 @@ class HostInfo:
 		left_backup = np.array([])
 		right_backup = np.array([])
 		middle_split = int(((self.x_max-self.x_min)/2.0)+.5)
-		for index in range(len(self.my_boids)):
+		for index in range(self.my_boids.size):
 			if self.my_boids['position'][index, 0] <= middle_split:
-				np.append(left_backup, self.my_boids['position'][index])
+				left_backup = np.append(left_backup, self.my_boids['position'][index])
 			else:
-				np.append(right_backup, self.my_boids['position'][index])
+				right_backup = np.append(right_backup, self.my_boids['position'][index])
 		return (self.numpy_array_to_string(left_backup),self.numpy_array_to_string(right_backup))
 
 
