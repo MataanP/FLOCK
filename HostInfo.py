@@ -19,13 +19,23 @@ class HostInfo:
 		self.n_r_halo = np.array([])
 		self.l_halo = np.array([])
 		self.r_halo = np.array([])
+		self.l_backup_alphas=''
+		self.r_backup_alphas=''
 		self.l_backup = ''
 		self.r_backup = ''
 		self.l_neighbor_ip = ''
 		self.r_neighbor_ip = ''
 		self.running = True
 		print('about to run')
-		#self.run()
+		self.run()
+
+	def merge_left_backups():
+		left_birds = self.string_to_numpy_array(l_backup)
+		left_alpha_birds = self.string_to_numpy_array(l_backup_alphas)
+
+	def merge_right_backups():
+		right_birds = self.string_to_numpy_array(r_backup)
+		right_alpha_birds = self.string_to_numpy_array(r_backup_alphas)
 
 	def host_to_GUI(self, list):
 		templist = list
