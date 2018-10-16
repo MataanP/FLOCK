@@ -27,6 +27,19 @@ class HostInfo:
 		print('about to run')
 		#self.run()
 
+	def host_to_boids(self, list):
+		templist = list
+		for i in range(list):
+			templist['position'][i,0] = list['position'][i,0] - self.x_min
+		return templist
+
+	def boids_to_host(self, list):
+		templist = list
+		for i in range(list):
+			templist['position'][i,0] = list['position'][i,0] + self.x_min
+		return templist
+
+
 	def instantiate_our_boids(self):
 		"""
 		instantiates all the my_boids and my_aboids
