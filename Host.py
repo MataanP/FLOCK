@@ -159,7 +159,7 @@ class Host:
                 else:
                     self.host_ips.append(payload_array[i])
                 i += 1
-            self.x_min = self.curr_max_x
+            self.x_min = self.curr_x_max
             self.x_max = self.x_min + self.x_scalar
             self.host_info = HostInfo(self.x_min, self.x_max)
 
