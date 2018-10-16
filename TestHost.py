@@ -64,6 +64,7 @@ class TestHost:
 
     def parseMessageHost(self, conn):
         '''ParseMessageHost is responsible for recieving messages from host-related sockets and and returning them as a Message object'''
+        sock = conn.host_sock
         msg = b''
         while True:
             byte = sock.recv(1)
