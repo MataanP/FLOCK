@@ -255,12 +255,12 @@ class TestHost:
                     # run calculations
                 elif instruction.type == 'Send HUPD':
                     #echo host update to all other hosts on the network
+                    min_max = str(self.x_min) + ':' + str(self.x_max)
                     payload = 'a' + '\0' + 'b' + '\0' + 'c' + '\0' + 'd' + '\0' + 'e' + '\0' + 'f' + '\0' + 'g' + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
                     #if there are no connections, send to myself
                     for connection in self.connections:
                         connection.sock.sendall(our_update.generateByteMessage())
-                    print('Sent Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
                     if len(self.connections) > 0:
@@ -271,7 +271,6 @@ class TestHost:
                     self.updates_received = []
                     # Once all updates are recieved update ABoid locations
                     self.all_alphas = []
-                    print('Host min_x = ' + str(self.x_min) + ', max_x = ' + str(self.x_max))
                 elif instruction.type == 'NHST':
                     #New host tring to connect to network
                     new_host_ip = instruction.message.origin
@@ -364,10 +363,12 @@ class TestHost:
         main_thread.daemon = True
         main_thread.start()
         while (self.running == True):
-            user_input = input('Enter "quit" to end program: ')
+            user_input = input('Enter "range" to see the current hosts min_x and max_x, or type "quit" to end program: ')
             if user_input == 'quit':
                 print('Quitting...')
                 self.running = False
+            elif user_input == 'range':
+                print('Host min_x = ' + str(self.x_min) + ', max_x = ' + str(self.x_max))
 
 class Connection:
     def __init__(self, ip, sock, thread,new_min,new_max):
@@ -401,7 +402,7 @@ def main():
     if len(sys.argv)<4:
         print("Usage: <YourIP> <YourPort> <ServerIP>")
     else:
-        Host(sys.argv[1],int(sys.argv[2]),sys.argv[3])
+        TestHost(sys.argv[1],int(sys.argv[2]),sys.argv[3])
 
 if __name__ == '__main__':
     main()
