@@ -116,11 +116,11 @@ class HostInfo:
 		left_alpha_backup = np.array([])
 		right_alpha_backup = np.array([])
 		middle_split = (self.x_max-self.x_min)/2
-		for coordinates in np.nditer(self.my_boids):
-		  if coordinates[0] <=middle_split:
-			np.append(left_alpha_backup,coordinates)
+		for index in range(self.my_boids.size):
+		  if my_boids['position'][index,0] <=middle_split:
+			left_alpha_backup = np.append(left_alpha_backup,my_boids['position'][index])
 		  else:
-			np.append(right_alpha_backup,coordinates)
+			right_alpha_backup = np.append(right_alpha_backup,my_boids['position'][index])
 		return (self.numpy_array_to_string(left_alpha_backup),self.numpy_array_to_string(right_alpha_backup))
 
 
@@ -174,9 +174,9 @@ class HostInfo:
 		"""
 		halo_bounday = x_min + 10
 		left_halo_array = np.array([])
-		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
-			if nparray[0] <= halo_boundary:
-				np.append(left_halo_array, nparray)
+		for index in range(self.my_boids.size):	#ask lilly if i can do this
+			if my_boids['position'][index,0] <= halo_boundary:
+				left_halo_array=np.append(left_halo_array, my_boids['position'][index])
 		self.l_halo = left_halo_array
 
 	def create_right_halo(self):
@@ -185,9 +185,9 @@ class HostInfo:
 		"""
 		halo_boundary = x_min - 10
 		right_halo_array = np.array([])
-		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
-			if nparray[0] >= halo_boundary:
-				np.append(right_halo_array, nparray)
+		for index in range(self.my_boids.size):	#ask lilly if i can do this
+			if my_boids['position'][index,0] >= halo_boundary:
+				right_halo_array=np.append(right_halo_array, my_boids['position'][index])
 		self.r_halo = right_halo_array
 
 	def string_to_numpy_array(self, array_string):
@@ -196,7 +196,7 @@ class HostInfo:
 		into an actual numpy Array
 		"""
 		comma_counter = 0
-		for i in range(0,len(array_string)):# the number of smaller arrays in the total array will be equal to number of commas
+		for i in range(len(array_string)):# the number of smaller arrays in the total array will be equal to number of commas
 			if array_string[i:i+1] == ",":
 				comma_counter+=1
 
