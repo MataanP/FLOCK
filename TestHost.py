@@ -211,7 +211,7 @@ class TestHost:
                     new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                     new_thread.daemon = True
                     new_thread.start()
-                    new_connection = Connection(host_ip, host_socket, new_thread, host_min_x, host_max_x)
+                    new_connection = Connection(host_ip, host_socket, new_thread)
                     self.connections.append(new_connection)
                     return True
                 else:
@@ -376,6 +376,8 @@ class TestHost:
             if user_input == 'quit':
                 print('Quitting...')
                 self.running = False
+                for connection in self.connections:
+                    connection.close()
             elif user_input == 'range':
                 print('Host min_x = ' + str(self.x_min) + ', max_x = ' + str(self.x_max))
             elif user_input == 'message':
