@@ -199,6 +199,8 @@ class TestHost:
                     curr_host_ip = area_message.origin
                     host_min_x = int(payload_array[0])
                     host_max_x = int(payload_array[1])
+                    self.x_min = host_max_x
+                    self.x_max = self.x_min + 50
                     if host_max_x > self.curr_x_max:
                         self.curr_x_max = host_max_x
                     if self.x_min == host_max_x:
