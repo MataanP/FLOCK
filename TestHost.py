@@ -339,7 +339,7 @@ class TestHost:
                 host_ip = message.origin
                 payload = message.payload.split('\0')
                 host_alphas = payload[0]
-                num_alphas = count(host_alphas.split(','))
+                num_alphas = len(host_alphas.split(','))
                 for i in range(num_alphas):
                     self.all_alphas.append(host_alphas.split(',')[i-1])
                 host_l_halo = payload[1]
