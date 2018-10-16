@@ -94,9 +94,9 @@ class HostInfo:
 
 	def get_our_backup(self):
 		"""
-	    returns a tuple of numpy arrays, the first is a backup of all boids
-	    in the left and the second is a backup of all boid in the right
-	    """
+		returns a tuple of numpy arrays, the first is a backup of all boids
+		in the left and the second is a backup of all boid in the right
+		"""
 		left_backup = np.array([])
 		right_backup = np.array([])
 		middle_split = int(((self.x_max-self.x_min)/2.0)+.5)
@@ -109,61 +109,74 @@ class HostInfo:
 
 
 	def get_our_alpha_backup(self):
-	    """
-	    returns a tuple of numpy arrays, the first is a backup of all boids
-	    in the left and the second is a backup of all boid in the right
-	    """
-	    left_alpha_backup = np.array([])
-	    right_alpha_backup = np.array([])
-	    middle_split = (self.x_max-self.x_min)/2
-	    for coordinates in np.nditer(self.my_boids):
-	      if coordinates[0] <=middle_split:
-	        np.append(left_alpha_backup,coordinates)
-	      else:
-	        np.append(right_alpha_backup,coordinates)
-	    return (self.numpy_array_to_string(left_alpha_backup),self.numpy_array_to_string(right_alpha_backup))
+		"""
+		returns a tuple of numpy arrays, the first is a backup of all boids
+		in the left and the second is a backup of all boid in the right
+		"""
+		left_alpha_backup = np.array([])
+		right_alpha_backup = np.array([])
+		middle_split = (self.x_max-self.x_min)/2
+		for coordinates in np.nditer(self.my_boids):
+		  if coordinates[0] <=middle_split:
+			np.append(left_alpha_backup,coordinates)
+		  else:
+			np.append(right_alpha_backup,coordinates)
+		return (self.numpy_array_to_string(left_alpha_backup),self.numpy_array_to_string(right_alpha_backup))
 
 
 	def update_n_l_halo(self, string_of_halo):
-	    """
-	    A method that updates the halo given to us by the left host, retrieved as payload in HUPD
-	    """
-	    halo_array = self.string_to_numpy_array(string_of_halo)
-	    self.n_l_halo = halo_array
+		"""
+		A method that updates the halo given to us by the left host, retrieved as payload in HUPD
+		"""
+		halo_array = self.string_to_numpy_array(string_of_halo)
+		self.n_l_halo = halo_array
 
 	def update_n_r_halo(self, string_of_halo):
-	    """
-	    A method that updates the halo given to us by the right host, retrieved as payload in HUPD
-	    """
-	    halo_array = self.string_to_numpy_array(string_of_halo)
-	    self.n_r_halo = halo_array
+		"""
+		A method that updates the halo given to us by the right host, retrieved as payload in HUPD
+		"""
+		halo_array = self.string_to_numpy_array(string_of_halo)
+		self.n_r_halo = halo_array
 
 	def update_my_boids(self, new_my_boids):
-	    """
-	    Method to update my boids, should only really be accessed by the boid calculation class
-	    """
-	    self.my_boids = new_my_boids
+		"""
+		Method to update my boids, should only really be accessed by the boid calculation class
+		"""
+		self.my_boids = new_my_boids
 
 	def update_my_aboids(self,new_my_aboids):
-	    """
-	    Method to update my Aboids, should only really be accessed by the boid calculation class
-	    """
-	    self.my_aboids = new_my_aboids
+		"""
+		Method to update my Aboids, should only really be accessed by the boid calculation class
+		"""
+		#self.my_aboids = new_my_aboids
+		numpy_array = np.array([])
+		for string in new_my_aboids:
+		  np.append(numpy_array, self.string_to_numpy_array(string))
+		for a_boid_index in range(new_my_aboids.size)
+			if new_my_aboids['position'][a_boid_index, 0] < self.x_min and new_my_aboids['position'][a_boid_index, 0] > self.x_max:
+				self.my_aboids = np.delete(self.my_aboids,new_my_aboids['position'][a_boid_index] )
+				#self.all_aboids = np.delete(new_my_aboids[a_boid_index])
+		self.my_aboids = new_my_aboids
 
 	def update_all_aboids(self, a_boid_string_list):
-	    """
-	    Method to update all a boids, should be a compilation of all a boids from host updates.
+		"""
+		Method to update all a boids, should be a compilation of all a boids from host updates.
 		Should receive a list of strings that are the first part of payload from each HUPD
-	    """
-	    numpy_array = np.array([])
-	    for string in a_boid_string_list:
-	      np.append(numpy_array, self.string_to_numpy_array(string))
-	    self.all_aboids = numpy_array
+		"""
+		numpy_array = np.array([])
+		for string in a_boid_string_list:
+		  np.append(numpy_array, self.string_to_numpy_array(string))
+
+		for a_boid_index in range(numpy_array.size)
+			if numpy_array['position'][a_boid_index, 0] > self.x_min and numpy_array['position'][a_boid_index, 0] < self.x_max:
+				self.my_aboids = np.append(self.my_aboids,numpy_array['position'][a_boid_index] )
+				#self.all_aboids = np.delete(numpy_array[a_boid_index])
+		self.all_aboids = numpy_array
 
 	def create_left_halo(self):
 		"""
-	    separate my boids into a left halo, for boids 10 spaces away from xmin
-	    """
+		separate my boids into a left halo, for boids 10 spaces away from xmin
+		"""
 		halo_bounday = x_min + 10
 		left_halo_array = np.array([])
 		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
@@ -173,8 +186,8 @@ class HostInfo:
 
 	def create_right_halo(self):
 		"""
-	    separate my boids into a right halo, for boids 10 spaces away from xmax
-	    """
+		separate my boids into a right halo, for boids 10 spaces away from xmax
+		"""
 		halo_boundary = x_min - 10
 		right_halo_array = np.array([])
 		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
