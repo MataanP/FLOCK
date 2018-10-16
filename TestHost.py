@@ -324,7 +324,7 @@ class TestHost:
             for conn in self.connections:
                 if conn.host_sock == host_sock:
                     host_connection = conn
-            message = self.parseMessageHost(host_connection)
+            message = self.parseMessage(host_sock)
             if message.type == 'HUPD':
                 #host update message payload
                 print('Got HUPD from ' + message.origin)
