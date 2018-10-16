@@ -31,11 +31,8 @@ a_scat = ax.scatter(a_birds['position'], a_birds['position'],
                     facecolors='red', marker=">")
 
 def decide_move(i):
-    dist = distance_matrix(a_birds['position'], birds['position'])
-    y = np.argmin(dist[0,i])
-    z = np.argmin(dist[1,i])
-    x = max(dist[0,y], dist[1,z])
-    print(x)
+    dist = distance_matrix(birds['position'], a_birds['position'])
+    x = np.argmin(dist[i])
     if a_birds['position'][x, 0] == birds['position'][i, 0] and a_birds['position'][x, 1] > birds['position'][i, 1]:
         birds['position'][i, 1] += 0.001
     elif a_birds['position'][x, 0] == birds['position'][i, 0] and a_birds['position'][x, 1] < birds['position'][i, 1]:
