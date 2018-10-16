@@ -69,5 +69,5 @@ class Message:
         self.payload = payload
 
     def generateByteMessage(self):
-        message = self.type + '\n' + self.origin + '\n' + self.payload + '\n';
+        message = self.type + '\n' + self.origin + '\n' + self.payload + '\n'
         return message.encode()

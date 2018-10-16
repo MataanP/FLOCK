@@ -286,7 +286,7 @@ class Host:
                     else:
                         for connection in self.connections:
                             connection.sock.sendall(our_update.generateByteMessage())
-                    self.host_info.update_my_aboids(self.host_info.my_aboids)
+                    self.host_info.update_my_aboids()
                     print('Sent Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
@@ -432,15 +432,15 @@ class Host:
                 self.running = False
 
 class Connection:
-    def __init__(self, ip, sock, thread):
+    def __init__(self, ip, sock, thread,new_min,new_max):
         """
         Connection objects are made up of host ip, sockets and threads so they can be differentiated
         """
         self.ip = ip
         self.host_sock = sock
         self.host_thread = thread
-        self.x_min = 0
-        self.x_max = 0
+        self.x_min = new_min
+        self.x_max = new_max
 
     def close(self):
         # connection close function for closing sockets and threads
