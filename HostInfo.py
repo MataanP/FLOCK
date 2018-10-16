@@ -30,12 +30,22 @@ class HostInfo:
 		self.run()
 
 	def merge_left_backups():
+		"""
+		A method used to merge the left backup with our current list of birds and alphas
+		"""
 		left_birds = self.string_to_numpy_array(l_backup)
 		left_alpha_birds = self.string_to_numpy_array(l_backup_alphas)
+		np.append(my_boids,left_birds)
+		np.append(my_aboids,left_alpha_birds)
 
 	def merge_right_backups():
+		"""
+		A method used to merge the right backup with our current list of birds and alphas
+		"""
 		right_birds = self.string_to_numpy_array(r_backup)
 		right_alpha_birds = self.string_to_numpy_array(r_backup_alphas)
+		np.append(my_boids,right_birds)
+		np.append(my_aboids,right_alpha_birds)
 
 	def host_to_GUI(self, list):
 		templist = list
