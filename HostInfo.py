@@ -180,6 +180,7 @@ class HostInfo:
 
 
 	def get_our_alpha_backup(self):
+		q = input('got to Send HUPD 3')
 		"""
 		returns a tuple of numpy arrays, the first is a backup of all boids
 		in the left and the second is a backup of all boid in the right
@@ -337,6 +338,7 @@ class HostInfo:
 
 
 	def create_left_halo(self):
+		q = input('got to Send HUPD 4')
 		"""
 		separate my boids into a left halo, for boids 10 spaces away from xmin
 		"""
@@ -357,6 +359,7 @@ class HostInfo:
 		self.l_halo = left_halo
 
 	def create_right_halo(self):
+		q = input('got to Send HUPD 5')
 		"""
 		separate my boids into a right halo, for boids 10 spaces away from xmax
 		"""

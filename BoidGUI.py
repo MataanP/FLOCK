@@ -38,7 +38,7 @@ class BoidGUI:
         n_birds = count(self.my_boids)
         #print(self.my_boids['position'])
         new_birds = np.zeros(n_birds, dtype=[('position', float, 2)])
-        new_self.my_boids['position'] = [[.5, .2], [.1, .9], [.2, .1], [.8, .8], [.4, .5], [.9, .9], [.2, .9], [.2, .5], [.8, .1]]
+        nself.my_boids['position'] = [[.5, .2], [.1, .9], [.2, .1], [.8, .8], [.4, .5], [.9, .9], [.2, .9], [.2, .5], [.8, .1]]
 
         self.my_boids = new_birds
         self.my_boids['position'] = new_self.my_boids['position']
@@ -130,12 +130,14 @@ class BoidGUI:
         self.n_r_halo = self.host_info.host_to_GUI(self.n_r_halo)
 
     def update(self, data):
-        #self.host_info.update_my_boids()
+
+        print('Number of birds : ')
+        print(self.my_boids.size)
+
+        self.host_info.update_my_boids()
         self.pull_UPD()
         # Pick position for regular self.my_boids
         #get_data()
-        print('size of my_boids: ')
-        print(self.my_boids.size)
         curr_num = len(self.my_boids['position'])
         for i in range(len(self.my_boids['position'])):
             self.decide_move(i)

@@ -293,7 +293,7 @@ class Host:
                     self.host_info.create_right_halo()
                     payload = self.host_info.numpy_array_to_string(self.host_info.my_aboids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
-
+                    q = input('got to Send HUPD 1')
                     #if there are no connections, send to myself
                     if len(self.connections) == 0:
                         self.updateSelf(our_update)
@@ -328,7 +328,6 @@ class Host:
                         self.l_neighbor = new_host_ip
                         self.host_info.l_neighbor_ip = new_host_ip
                     self.host_ips.append(new_host_ip)
-                    self.host_info.alone = False
                     #Start the thread that is listening to the socket connected to the new host
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
@@ -360,6 +359,7 @@ class Host:
         return
 
     def updateSelf(self, message):
+        q = input("press enter")
         self.updated = False
         self.host_info.alone = True
         host_ip = message.origin
@@ -385,6 +385,7 @@ class Host:
         self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
         self.host_info.r_backup = host_all_l
         self.host_info.r_backup_alphas = l_alpha_backup
+
         self.updated = True
 
     def listenToHost(self, host_sock):
