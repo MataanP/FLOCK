@@ -29,38 +29,61 @@ class TestHost:
 
     def parseMessage(self, sock):
         '''ParseMessage is responsible for recieving messages from sockets and and returning them as a string'''
-        try:
-            msg = b''
-            while True:
-                byte = sock.recv(1)
-                if len(byte) == 0:
-                    raise ConnectionError('Socket is closed - 1')
-                if byte == b'\n':
-                    break
-                msg += byte
-            datatype = msg.decode()
-            msg = b''
-            while True:
-                byte = sock.recv(1)
-                if len(byte) == 0:
-                    raise ConnectionError('Socket is closed - 2')
-                if byte == b'\n':
-                    break
-                msg += byte
-            origin = msg.decode()
-            msg = b''
-            while True:
-                byte = sock.recv(1)
-                if len(byte) == 0:
-                    raise ConnectionError('Socket is closed - 3')
-                if byte == b'\n':
-                    break
-                msg += byte
-            payload = msg.decode()
-            return Message(datatype, origin, payload)
-        except ConnectionError as err:
-            print("Error: {0} ".format(err))
-            return None
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                range = self.x_scalar
+                if self.l_neighbor == conn.ip:
+                    self.x_min -= int((range/2.0)+.5)
+                if self.r_neighbor == conn.ip:
+                    self.x_max += int((range/2.0)+.5)
+                conn.close()
+                self.host_ips.remove(conn.ip)
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        datatype = msg.decode()
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                range = self.x_scalar
+                if self.l_neighbor == conn.ip:
+                    self.x_min -= int((range/2.0)+.5)
+                if self.r_neighbor == conn.ip:
+                    self.x_max += int((range/2.0)+.5)
+                conn.close()
+                self.host_ips.remove(conn.ip)
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        origin = msg.decode()
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                range = self.x_scalar
+                if self.l_neighbor == conn.ip:
+                    self.x_min -= int((range/2.0)+.5)
+                if self.r_neighbor == conn.ip:
+                    self.x_max += int((range/2.0)+.5)
+                conn.close()
+                self.host_ips.remove(conn.ip)
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        payload = msg.decode()
+        return Message(datatype, origin, payload)
 
     def parseMessageHost(self, conn):
         '''ParseMessageHost is responsible for recieving messages from host-related sockets and and returning them as a Message object'''
