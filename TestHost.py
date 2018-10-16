@@ -275,10 +275,9 @@ class TestHost:
                     #New host tring to connect to network
                     new_host_ip = instruction.message.origin
                     payload_array = instruction.message.payload.split(':')
-                    new_host_min_x = payload_array[0]
-                    new_host_max_x = payload_array[1]
+
                     #check if the new host is a neighbor
-                    if self.x_max == new_host_min_x:
+                    if self.x_max == self.curr_x_max:
                         self.r_neighbor = new_host_ip
                     if self.x_min == self.curr_x_min:
                         self.l_neighbor = new_host_ip
@@ -355,7 +354,8 @@ class TestHost:
                 new_instruction.message = message
                 self.work_queue.append(new_instruction)
             else:
-                print('Invalid message type received from ' + message.origin)
+                print('Dynamic message type received from ' + message.origin + '; message says: ')
+                print(message.type)
         return
 
     def run(self):
@@ -363,12 +363,19 @@ class TestHost:
         main_thread.daemon = True
         main_thread.start()
         while (self.running == True):
-            user_input = input('Enter "range" to see the current hosts min_x and max_x, or type "quit" to end program: ')
+            user_input = input('\nEnter "range" to see the current hosts min_x and max_x, message to send a message to all hosts, or type "quit" to end program:\n >>> ')
             if user_input == 'quit':
                 print('Quitting...')
                 self.running = False
             elif user_input == 'range':
                 print('Host min_x = ' + str(self.x_min) + ', max_x = ' + str(self.x_max))
+            elif user_input == 'message':
+                user_input = input('\nEnter your message: \n >>> ')
+                message = Message(user_input, self.ip, 'none')
+                for conn in self.connections:
+                    conn.sock.sendall(message.generateByteMessage())
+                print('\nYour message was sent to all connected hosts!\n')
+
 
 class Connection:
     def __init__(self, ip, sock, thread,new_min,new_max):
