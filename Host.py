@@ -218,11 +218,10 @@ class Host:
             if indicator != 0:
                 return False
             else:
-                host_area = self.x_min + ':' + self.x_max
-                new_host_msg = Message("NHST", self.ip, host_area)
+                new_host_msg = Message("NHST", self.ip, '\0')
                 host_socket.sendall(new_host_msg.generateByteMessage())
                 print('NHST message sent to Host at ' + host_ip)
-                area_message = self.parseMessage(client_sock)
+                area_message = self.parseMessage(host_socket)
                 if(area_message.type == 'AREA'):
                     print('AREA message received from ' + area_message.origin)
                     payload_array = area_message.payload.split(':')
