@@ -70,7 +70,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = 50
+                range = self.x_scalar
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -88,7 +88,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = 50
+                range = self.x_scalar
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -106,7 +106,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = 50
+                range = self.x_scalar
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -230,10 +230,11 @@ class TestHost:
             message = self.parseMessage(new_conn_sock)
             if (message.type == 'NHST'):
                 print('Got NHST message from ' + message.origin)
-                new_instruction = Instruction('NHST')
-                new_instruction.message = message
-                new_instruction.sock = new_conn_sock
-                self.work_queue.append(new_instruction)
+                new_thread = Thread(target=lambda: self.listenToHost(new_conn_sock))
+                new_thread.daemon = True
+                new_thread.start()
+                new_connection = Connection(new_conn_ip, new_conn_sock, new_thread)
+                self.connections.append(new_connection)
             else:
                 print('Invalid Message Type received from ' + message.origin)
                 new_conn_sock.close()
@@ -289,7 +290,7 @@ class TestHost:
                     new_thread.start()
                     new_connection = Connection(new_host_ip, instruction.sock, new_thread)
                     self.connections.append(new_connection)
-                    host_area = self.x_min + ':' + self.x_max
+                    host_area = str(self.x_min) + ':' + str(self.x_max)
                     #send current host area to the newly connected host
                     area_message = Message('AREA', self.ip, host_area)
                     instruction.sock.sendall(area_message.generateByteMessage())
