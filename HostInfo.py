@@ -19,8 +19,8 @@ class HostInfo:
 		self.n_r_halo = np.array([])
 		self.l_halo = np.array([])
 		self.r_halo = np.array([])
-		self.l_backup = np.array([])
-		self.r_backup = np.array([])
+		self.l_backup = ''
+		self.r_backup = ''
 		self.l_neighbor_ip = ''
 		self.r_neighbor_ip = ''
 		self.running = True

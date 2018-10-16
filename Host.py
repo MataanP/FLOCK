@@ -57,6 +57,62 @@ class Host:
             print("Error: {0} ".format(err))
             return None
 
+    def parseMessageHost(self, conn):
+        '''ParseMessageHost is responsible for recieving messages from host-related sockets and and returning them as a Message object'''
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                range = conn.max_x - conn.min_x
+
+                if self.l_neighbor = conn.ip:
+                    #adjust x_min
+                    self.x_min -= int((range/2.0)+.5)
+                    self.host_info.x_min -= int((self.x_scalar/2.0)+.5)
+                    #draw them birds
+                    
+
+                if self.r_neighbor = conn.ip:
+                    #adjust x_max
+                    self.x_max += int((range/2.0)+.5)
+                    self.host_info.x_max += int((self.x_scalar/2.0)+.5)
+                    #draw them birds
+
+                conn.close()
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        datatype = msg.decode()
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                conn.close()
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        origin = msg.decode()
+        msg = b''
+        while True:
+            byte = sock.recv(1)
+            if len(byte) == 0:
+                print('Host ' + conn.ip + ' was lost')
+                conn.close()
+                self.connections.remove(conn)
+                return
+            if byte == b'\n':
+                break
+            msg += byte
+        payload = msg.decode()
+        return Message(datatype, origin, payload)
+
+
     def connectToServer(self):
         """
         This function initiaties the connection request and sends it to the serverPC to be verified as a host.
@@ -133,7 +189,8 @@ class Host:
                     new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                     new_thread.daemon = True
                     new_thread.start()
-                    self.connections.append(Connection(host_ip, host_socket, new_thread))
+                    new_connection = Connection(host_ip, host_socket, new_thread, host_min_x, host_max_x)
+                    self.connections.append(new_connection)
                     return True
                 else:
                     print('Invalid message type received from ' + area_message.origin + ' - Host corrupt')
@@ -181,7 +238,8 @@ class Host:
                     #echo host update to all other hosts on the network
                     all_l, all_r = self.host_info.get_our_backup()
                     all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
-                    payload = self.host_info.numpy_array_to_string(self.host_info.my_boids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0'
+                    min_max = str(self.x_min) + ':' + str(self.x_max)
+                    payload = self.host_info.numpy_array_to_string(self.host_info.my_boids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
                     for connection in self.connections:
                         connection.sock.sendall(our_update.generateByteMessage())
@@ -214,7 +272,8 @@ class Host:
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
                     new_thread.start()
-                    self.connections.append(Connection(new_host_ip, instruction.sock, new_thread))
+                    new_connection = Connection(new_host_ip, instruction.sock, new_thread, new_host_min_x, new_host_max_x)
+                    self.connections.append(new_connection)
                     host_area = self.x_min + ':' + self.x_max
                     #send current host area to the newly connected host
                     area_message = Message('AREA', self.ip, host_area)
@@ -245,7 +304,11 @@ class Host:
         """
         while self.running == True:
             #turn message into string
-            message = self.parseMessage(host_sock)
+            host_connection = None
+            for conn in self.connections:
+                if conn.sock == host_sock:
+                    host_connection = conn
+            message = self.parseMessageHost(host_connection)
             if message.type == 'HUPD':
                 #host update message payload
                 print('Got HUPD from ' + message.origin)
@@ -259,6 +322,8 @@ class Host:
                 host_all_r = payload[4]
                 l_alpha_backup = payload[5]
                 r_alpha_backup = payload[6]
+                host_min = payload[7].split(':')[0]
+                host_max = payload[7].split(':')[1]
                 if self.l_neighbor == host_ip:
                     #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
                     self.host_info.n_l_halo = host_r_halo
@@ -302,6 +367,8 @@ class Connection:
         self.ip = ip
         self.host_sock = sock
         self.host_thread = thread
+        self.x_min = 0
+        self.x_max = 0
 
     def close(self):
         # connection close function for closing sockets and threads
