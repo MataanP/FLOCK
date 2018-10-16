@@ -170,7 +170,10 @@ class Host:
             self.x_min = self.curr_x_max
             self.x_max = self.x_min + self.x_scalar
             self.host_info = HostInfo(self.x_min, self.x_max)
-
+            #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
+            del_message = Message('LHST', self.ip, lost_payload)
+            print('sent LHST to serverPC with payload: ' + lost_payload)
+            client_sock.sendall(del_message.generateByteMessage())
             if self.curr_x_min_ip == '':
                 #there was no other host, you are your own neighbor
                 self.r_neighbor = self.ip
@@ -189,20 +192,20 @@ class Host:
                 else:
                     #there is a left neighbor - set host info left neighbor
                     self.host_info.l_neighbor_ip = self.l_neighbor
-            #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
-            del_message = Message('LHST', self.ip, lost_payload)
-            print('sent LHST to serverPC with payload: ' + lost_payload)
-            client_sock.sendall(del_message.generateByteMessage())
             # need to start the listening thread and the work thread now
+            host_start_thread = Thread(target=lambda: self.startHostInfo())
+            host_start_thread.start()
             listening_thread = Thread(target=lambda: self.listeningPort())
             listening_thread.daemon = True
             listening_thread.start()
             work_thread = Thread(target=lambda: self.processWork())
             work_thread.daemon = True
             work_thread.start()
-            self.host_info.alone = False
         else:
             print('Invalid message type received from ' + message.origin)
+
+    def startHostInfo(self):
+        self.host_info.run()
 
     def setupHostConnection(self, host_ip):
         """
@@ -276,6 +279,7 @@ class Host:
                 self.work_queue = [Instruction('Do Math'), Instruction('Send HUPD'), Instruction('Receive All HUPDs')]
             else:
                 instruction = self.work_queue.pop(0)
+                print('Instruction is : ' + instruction.type)
                 if instruction.type == 'Do Math':
                     #start calculations
                     self.updated = False
@@ -286,8 +290,8 @@ class Host:
                     all_l, all_r = self.host_info.get_our_backup()
                     all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
                     min_max = str(self.x_min) + ':' + str(self.x_max)
-                    self.host_info.create_l_halo()
-                    self.host_info.create_r_halo()
+                    self.host_info.create_left_halo()
+                    self.host_info.create_right_halo()
                     payload = self.host_info.numpy_array_to_string(self.host_info.my_aboids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
 
@@ -362,6 +366,10 @@ class Host:
         host_ip = message.origin
         payload = message.payload.split('\0')
         host_alphas = payload[0]
+        print('host_alphas = ' + host_alphas)
+        num_alphas = len(host_alphas.split(','))
+        for i in range(num_alphas):
+            self.all_alphas.append(host_alphas.split(',')[i-1])
         host_l_halo = payload[1]
         host_r_halo = payload[2]
         host_all_l = payload[3]
@@ -400,6 +408,9 @@ class Host:
                 host_ip = message.origin
                 payload = message.payload.split('\0')
                 host_alphas = payload[0]
+                num_alphas = count(host_alphas.split(','))
+                for i in range(num_alphas):
+                    self.all_alphas.append(host_alphas.split(',')[i-1])
                 host_l_halo = payload[1]
                 host_r_halo = payload[2]
                 host_all_l = payload[3]
