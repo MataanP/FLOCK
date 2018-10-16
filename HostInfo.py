@@ -29,6 +29,10 @@ class HostInfo:
 		print('about to run')
 		self.run()
 
+	def merge_halos():
+		self.my_boids = np.append(self.my_boids, n_l_halo)
+		self.my_boids = np.append(self.my_boids, n_r_halo)
+
 	def merge_left_backups():
 		"""
 		A method used to merge the left backup with our current list of birds and alphas
@@ -162,7 +166,7 @@ class HostInfo:
 	    """
 		halo_bounday = x_min + 10
 		left_halo_array = np.array([])
-		for nparray in my_boids:	#ask lilly if i can do this
+		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
 			if nparray[0] <= halo_boundary:
 				np.append(left_halo_array, nparray)
 		self.l_halo = left_halo_array
@@ -173,7 +177,7 @@ class HostInfo:
 	    """
 		halo_boundary = x_min - 10
 		right_halo_array = np.array([])
-		for nparray in np.nditer(my_boids):	#ask lilly if i can do this
+		for nparray in np.nditer(self.my_boids):	#ask lilly if i can do this
 			if nparray[0] >= halo_boundary:
 				np.append(right_halo_array, nparray)
 		self.r_halo = right_halo_array

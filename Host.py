@@ -267,6 +267,7 @@ class Host:
                     self.updated = True
                     self.updates_received = []
                     # Once all updates are recieved update ABoid locations
+                    self.host_info.merge_halos()
                     self.host_info.update_all_aboids(self.all_alphas)
                     self.all_alphas = []
                 elif instruction.type == 'NHST':
@@ -341,12 +342,13 @@ class Host:
                 host_max = payload[7].split(':')[1]
                 if self.l_neighbor == host_ip:
                     #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
-                    self.host_info.n_l_halo = host_r_halo
+                    self.host_info.n_l_halo = self.host_info.string_to_numpy_array(host_r_halo)
                     self.host_info.l_backup = host_all_r
                     self.host_info.l_backup_alphas = r_alpha_backup
+
                 elif self.r_neightbor == host_ip:
                     #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
-                    self.host_info.n_r_halo = host_l_halo
+                    self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
                     self.host_info.r_backup = host_all_l
                     self.host_info.r_backup_alphas = l_alpha_backup
                 #may need to parse the different Alpha coordinates before appending to all_alphas

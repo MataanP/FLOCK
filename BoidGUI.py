@@ -47,7 +47,7 @@ class BoidGUI:
 
 
     def decide_move(self, i):
-        dist = distance_matrix(self.my_boids['position'], self.my_aboids['position'])
+        dist = distance_matrix(self.my_boids['position'], self.all_aboids['position'])
         x = np.argmin(dist[i])
         if self.my_aboids['position'][x, 0] == self.my_boids['position'][i, 0] and self.my_aboids['position'][x, 1] > self.my_boids['position'][i, 1]:
             self.my_boids['position'][i, 1] += self.speed
