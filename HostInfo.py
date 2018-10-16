@@ -49,13 +49,13 @@ class HostInfo:
 
 	def host_to_GUI(self, list):
 		templist = list
-		for i in range(list):
+		for i in range(len(list)):
 			templist['position'][i,0] = list['position'][i,0] - self.x_min
 		return templist
 
 	def GUI_to_host(self, list):
 		templist = list
-		for i in range(list):
+		for i in range(len(list)):
 			templist['position'][i,0] = list['position'][i,0] + self.x_min
 		return templist
 
@@ -96,7 +96,7 @@ class HostInfo:
 		left_backup = np.array([])
 		right_backup = np.array([])
 		middle_split = int(((self.x_max-self.x_min)/2.0)+.5)
-		for index in range(self.my_boids):
+		for index in range(len(self.my_boids)):
 			if self.my_boids['position'][index, 0] <= middle_split:
 				np.append(left_backup, self.my_boids['position'][index])
 			else:

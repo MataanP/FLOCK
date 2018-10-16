@@ -65,11 +65,11 @@ class Host:
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
                 range = conn.max_x - conn.min_x
-                if self.l_neighbor = conn.ip:
+                if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                     self.host_info.x_min -= int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_left_backups()
-                if self.r_neighbor = conn.ip:
+                if self.r_neighbor == conn.ip:
                     self.x_max += int((range/2.0)+.5)
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backup()
@@ -87,11 +87,11 @@ class Host:
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
                 range = conn.max_x - conn.min_x
-                if self.l_neighbor = conn.ip:
+                if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                     self.host_info.x_min -= int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_left_backups()
-                if self.r_neighbor = conn.ip:
+                if self.r_neighbor == conn.ip:
                     self.x_max += int((range/2.0)+.5)
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backup()
@@ -109,11 +109,11 @@ class Host:
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
                 range = conn.max_x - conn.min_x
-                if self.l_neighbor = conn.ip:
+                if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                     self.host_info.x_min -= int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_left_backups()
-                if self.r_neighbor = conn.ip:
+                if self.r_neighbor == conn.ip:
                     self.x_max += int((range/2.0)+.5)
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backup()
