@@ -262,7 +262,7 @@ class TestHost:
                     our_update = Message("HUPD", self.ip, payload)
                     #if there are no connections, send to myself
                     for connection in self.connections:
-                        connection.sock.sendall(our_update.generateByteMessage())
+                        connection.host_sock.sendall(our_update.generateByteMessage())
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
                     if len(self.connections) > 0:
