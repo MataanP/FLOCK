@@ -70,7 +70,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = conn.max_x - conn.min_x
+                range = 50
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -88,7 +88,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = conn.max_x - conn.min_x
+                range = 50
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -106,7 +106,7 @@ class TestHost:
             byte = sock.recv(1)
             if len(byte) == 0:
                 print('Host ' + conn.ip + ' was lost')
-                range = conn.max_x - conn.min_x
+                range = 50
                 if self.l_neighbor == conn.ip:
                     self.x_min -= int((range/2.0)+.5)
                 if self.r_neighbor == conn.ip:
@@ -287,7 +287,7 @@ class TestHost:
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
                     new_thread.start()
-                    new_connection = Connection(new_host_ip, instruction.sock, new_thread, new_host_min_x, new_host_max_x)
+                    new_connection = Connection(new_host_ip, instruction.sock, new_thread)
                     self.connections.append(new_connection)
                     host_area = self.x_min + ':' + self.x_max
                     #send current host area to the newly connected host
@@ -379,15 +379,13 @@ class TestHost:
 
 
 class Connection:
-    def __init__(self, ip, sock, thread,new_min,new_max):
+    def __init__(self, ip, sock, thread):
         """
         Connection objects are made up of host ip, sockets and threads so they can be differentiated
         """
         self.ip = ip
         self.host_sock = sock
         self.host_thread = thread
-        self.x_min = new_min
-        self.x_max = new_max
 
     def close(self):
         # connection close function for closing sockets and threads
