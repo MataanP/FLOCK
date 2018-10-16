@@ -201,7 +201,7 @@ class TestHost:
                     host_max_x = int(payload_array[1])
                     if host_max_x > self.curr_x_max:
                         self.curr_x_max = host_max_x
-                    if self.min_x == host_max_x:
+                    if self.x_min == host_max_x:
                         self.l_neighbor = curr_host_ip
                     if host_min_x <= self.curr_x_min:
                         self.curr_x_min = host_min_x
