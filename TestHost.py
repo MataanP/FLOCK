@@ -197,8 +197,8 @@ class TestHost:
                     print('AREA message received from ' + area_message.origin)
                     payload_array = area_message.payload.split(':')
                     curr_host_ip = area_message.origin
-                    host_min_x = payload_array[0]
-                    host_max_x = payload_array[1]
+                    host_min_x = int(payload_array[0])
+                    host_max_x = int(payload_array[1])
                     if host_max_x > self.curr_x_max:
                         self.curr_x_max = host_max_x
                     if self.min_x == host_max_x:
@@ -239,7 +239,7 @@ class TestHost:
                 #send current host area to the newly connected host
                 area_message = Message('AREA', self.ip, host_area)
                 new_conn_sock.sendall(area_message.generateByteMessage())
-                print('Sent AREA message to ' + new_host_ip)
+                print('Sent AREA message to ' + new_conn_ip)
             else:
                 print('Invalid Message Type received from ' + message.origin)
                 new_conn_sock.close()
