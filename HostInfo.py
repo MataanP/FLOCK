@@ -171,7 +171,7 @@ class HostInfo:
 			if numpy_array['position'][a_boid_index, 0] > self.x_min and numpy_array['position'][a_boid_index, 0] < self.x_max:
 				self.my_aboids = np.append(self.my_aboids,numpy_array['position'][a_boid_index] )
 				#self.all_aboids = np.delete(numpy_array[a_boid_index])
-		self.all_aboids = numpy_array
+		self.all_aboids = np.appemd(numpy_array, self.my_aboids)
 
 	def create_left_halo(self):
 		"""
