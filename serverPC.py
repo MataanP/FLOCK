@@ -8,6 +8,7 @@ class serverPC:
 		self.servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.host_addrs = []
 		self.max_xcoord = 0
+		self.bannedClients = []
 
 	def parseMessage(self, sock):
 		try:
@@ -57,8 +58,13 @@ class serverPC:
 			for client in allowedClients:
 				#check if incoming connection IP is allowed on to the network
 				print("Client info", client)
-				if client == client_ip:
+				if client in self.bannedClients:
+					print("This client has been banned from the current execution of the program")
+					break
+				elif client == client_ip:
 					print("This client is allowed to connect")
+					#Client is automatically added to banned ips so it cannot reconnect until the next time the program starts
+					self.bannedClients.append(client_ip)
 					x += 1
 					break
 			if x == 0:
@@ -87,7 +93,7 @@ class serverPC:
 									self.host_addrs.remove(dead_ip)
 						conn.close()
 						self.max_xcoord += 50
-						self.host_addrs.append((client_ip, self.max_xcoord))
+						self.host_addrs.append(client_ip)
 					else:
 						print('Invalid message type received - LHST expected, message of type ' + message.type + ' received.')
 						conn.close()
