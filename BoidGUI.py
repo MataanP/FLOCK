@@ -114,9 +114,10 @@ class BoidGUI:
         print('real self.my_boids: ')
         print(self.my_boids['position'])
         curr_num = len(self.my_boids['position'])
-        for i in range(curr_num):
+        for i in range(len(self.my_boids['position'])):
             self.decide_move(i)
-        self.a_decide_move()
+        for i in range(len(self.my_aboids['position'])):
+            self.a_decide_move(i)
         # Update the scatter collection, with the new position
         self.scat.set_offsets(self.my_boids['position'])
         self.a_scat.set_offsets(self.my_aboids['position'])
