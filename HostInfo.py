@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from BoidGUI import BoidGUI
+from threading import Thread
 
 class HostInfo:
 
@@ -261,3 +262,5 @@ class HostInfo:
 		print('Starting GUI')
 		self.instantiate_our_boids()
 		self.gui = BoidGUI(self, self.my_boids, self.my_aboids)
+		self.gui_thread = Thread(target=lambda: self.gui.run())
+		self.gui_thread.start()

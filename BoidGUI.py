@@ -29,7 +29,6 @@ class BoidGUI:
         self.boid_size = 100
         self.scat = self.ax.scatter(self.my_boids['position'], self.my_boids['position'], s=self.boid_size, lw=.5, edgecolors='none', facecolors='green', marker=">")
         self.a_scat = self.ax.scatter(self.my_aboids['position'], self.my_aboids['position'], s = self.boid_size, lw=.5, edgecolor='none', facecolors='red', marker=">")
-        self.run()
 
     def get_data(self):
         n_birds = count(self.my_boids)
