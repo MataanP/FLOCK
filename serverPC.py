@@ -87,7 +87,7 @@ class serverPC:
 									self.host_addrs.remove(dead_ip)
 						conn.close()
 						self.max_xcoord += 50
-						self.host_addrs.append((client_ip, self.max_xcoord))
+						self.host_addrs.append(client_ip)
 					else:
 						print('Invalid message type received - LHST expected, message of type ' + message.type + ' received.')
 						conn.close()
