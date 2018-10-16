@@ -286,6 +286,7 @@ class Host:
                     else:
                         for connection in self.connections:
                             connection.sock.sendall(our_update.generateByteMessage())
+                    self.host_info.update_my_aboids(self.host_info.my_aboids)
                     print('Sent Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
