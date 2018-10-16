@@ -159,7 +159,6 @@ class Host:
                 else:
                     self.host_ips.append(payload_array[i])
                 i += 1
-            #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
             self.x_min = self.curr_max_x
             self.x_max = self.x_min + self.x_scalar
             self.host_info = HostInfo(self.x_min, self.x_max)
@@ -182,7 +181,7 @@ class Host:
                 else:
                     #there is a left neighbor - set host info left neighbor
                     self.host_info.l_neighbor_ip = self.l_neighbor
-            
+            #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
             del_message = Message('LHST', self.ip, lost_payload)
             print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
@@ -225,8 +224,6 @@ class Host:
                     if host_min_x <= self.curr_x_min:
                         self.curr_x_min = host_min_x
                         self.curr_x_min_ip = curr_host_ip
-                        #after all this, set the right neighbor as curr_x_min_ip
-
                     new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                     new_thread.daemon = True
                     new_thread.start()
@@ -280,15 +277,21 @@ class Host:
                     all_l, all_r = self.host_info.get_our_backup()
                     all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
                     min_max = str(self.x_min) + ':' + str(self.x_max)
-                    payload = self.host_info.numpy_array_to_string(self.host_info.my_boids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
+                    payload = self.host_info.numpy_array_to_string(self.host_info.my_aboids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
-                    for connection in self.connections:
-                        connection.sock.sendall(our_update.generateByteMessage())
+
+                    #if there are no connections, send to myself
+                    if len(self.connections) == 0:
+                        self.updateSelf(our_update)
+                    else:
+                        for connection in self.connections:
+                            connection.sock.sendall(our_update.generateByteMessage())
                     print('Sent Out HUPD')
                 elif instruction.type == 'Receive All HUPDs':
                     # make sure to receive all HUPDs from listening threads
-                    while len(self.updates_received) != len(self.connections):
-                        msg = 'wait'
+                    if len(self.connections) > 0:
+                        while len(self.updates_received) != len(self.connections):
+                            msg = 'wait'
                     # only set to true once all updates have been received
                     self.updated = True
                     self.updates_received = []
@@ -338,6 +341,31 @@ class Host:
 
         return
 
+    def updateSelf(self, message):
+        self.updated = False
+        host_ip = message.origin
+        payload = message.payload.split('\0')
+        host_alphas = payload[0]
+        host_l_halo = payload[1]
+        host_r_halo = payload[2]
+        host_all_l = payload[3]
+        host_all_r = payload[4]
+        l_alpha_backup = payload[5]
+        r_alpha_backup = payload[6]
+        host_min = payload[7].split(':')[0]
+        host_max = payload[7].split(':')[1]
+        if self.l_neighbor == host_ip:
+            #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
+            self.host_info.n_l_halo = self.host_info.string_to_numpy_array(host_r_halo)
+            self.host_info.l_backup = host_all_r
+            self.host_info.l_backup_alphas = r_alpha_backup
+        if self.r_neighbor == host_ip:
+            #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
+            self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
+            self.host_info.r_backup = host_all_l
+            self.host_info.r_backup_alphas = l_alpha_backup
+        self.updated = True
+
     def listenToHost(self, host_sock):
         """
         listenToHost recieves messages from other hosts
@@ -372,7 +400,7 @@ class Host:
                     self.host_info.l_backup = host_all_r
                     self.host_info.l_backup_alphas = r_alpha_backup
 
-                elif self.r_neightbor == host_ip:
+                if self.r_neighbor == host_ip:
                     #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
                     self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
                     self.host_info.r_backup = host_all_l
