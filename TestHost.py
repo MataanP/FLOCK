@@ -322,7 +322,7 @@ class TestHost:
             #turn message into string
             host_connection = None
             for conn in self.connections:
-                if conn.sock == host_sock:
+                if conn.host_sock == host_sock:
                     host_connection = conn
             message = self.parseMessageHost(host_connection)
             if message.type == 'HUPD':
@@ -375,7 +375,7 @@ class TestHost:
                 user_input = input('\nEnter your message: \n >>> ')
                 message = Message(user_input, self.ip, 'none')
                 for conn in self.connections:
-                    conn.sock.sendall(message.generateByteMessage())
+                    conn.host_sock.sendall(message.generateByteMessage())
                 print('\nYour message was sent to all connected hosts!\n')
 
 
