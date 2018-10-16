@@ -25,15 +25,15 @@ class HostInfo:
 		self.r_neighbor_ip = ''
 		self.running = True
 		print('about to run')
-		self.run()
+		#self.run()
 
-	def host_to_boids(self, list):
+	def host_to_GUI(self, list):
 		templist = list
 		for i in range(list):
 			templist['position'][i,0] = list['position'][i,0] - self.x_min
 		return templist
 
-	def boids_to_host(self, list):
+	def GUI_to_host(self, list):
 		templist = list
 		for i in range(list):
 			templist['position'][i,0] = list['position'][i,0] + self.x_min
@@ -75,7 +75,7 @@ class HostInfo:
 	    """
 		left_backup = np.array([])
 		right_backup = np.array([])
-		middle_split = (self.x_max-self.x_min)/2
+		middle_split = int(((self.x_max-self.x_min)/2.0)+.5)
 		for index in range(self.my_boids):
 			if self.my_boids['position'][index, 0] <= middle_split:
 				np.append(left_backup, self.my_boids['position'][index])
@@ -160,35 +160,41 @@ class HostInfo:
 
 	def string_to_numpy_array(self, array_string):
 		comma_counter = 0
-		for i in range(0,len(array_string)-1):
+		for i in range(0,len(array_string)):
 			if array_string[i:i+1] == ",":
 				comma_counter+=1
 
-		array = np.zeros(comma_counter-1, dtype=[('position', float, 2)])
-		current_comma = 0
+		array = np.zeros(comma_counter, dtype=[('position', float, 2)])
 		array_iterator = 0
+
+		current_comma = -1
 		next_comma = array_string.find(",")
-		next_period = array_string.find(".")
-		while next_comma>=0:
-			x_int = array_string [current_comma+1:next_period]
-			y_int = array_string [next_period+1:next_comma]
+		next_tunnel = array_string.find("|")
+		timeToStop = False
+		while array_iterator<comma_counter:
+			print("x int is:"+array_string [current_comma+1:next_tunnel])
+			print("y int is:"+array_string [next_tunnel+1:next_comma])
+
+			x_int = float(array_string [current_comma+1:next_tunnel])# the x coord from the string (in between current comma, and the next tunnel)
+			y_int = float(array_string [next_tunnel+1:next_comma])# the y coord from the string (in between current tunnel and and next comma)
 			array["position"][array_iterator,0] = x_int#[position] takes you into the x-y plane, array iterator goes through list of coordinates, 0 is x
 			array["position"][array_iterator,1] = y_int# 1 is y
 			current_comma = next_comma
-			next_comma = array_string.find("," next_comma+1,len(array_string)-1)
+			next_comma = array_string.find(",", next_comma+1,len(array_string)-1)
 			array_iterator+=1
+			next_tunnel = array_string.find("|",next_tunnel+1,len(array_string)-1)
+		return array
+
 	def numpy_array_to_string(self, numpy_array):
 		position_array = numpy_array["position"]
-		string_to_send
+		string_to_send = ""
 		for i in range(len(position_array)):
-			position_array[i,0]
-
+			x = position_array[i,0]
+			y = position_array[i,1]
+			string_to_send+=str(x)+"|"+str(y)+","
+		return string_to_send
 
 	def run(self):
 		print('Starting GUI')
 		self.instantiate_our_boids()
 		self.gui = BoidGUI(self.my_boids, self.my_aboids)
-
-birds = np.zeros(n_birds, dtype=[('position', float, 2)])
-birds["position"] = [[3,4],[4,5],[5,6],[6,7],[7,8]]
-print(birds[0])
