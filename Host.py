@@ -11,6 +11,9 @@ class Host:
         self.port = port # Host port
         self.serverPC_ip = server_ip #ServerPC ip the host is connecting to
         self.x_scalar = 50  #for incrementing the x_min to an x_max value
+        self.curr_x_max = 0
+        self.curr_x_min = 50
+        self.curr_x_min_ip = ''
         self.l_neighbor = '' #Area of the shared area between the host and the left neighbor
         self.r_neighbor = '' #Area shared between the host and the right neighbor
         self.host_ips = [] #The list of all connected hosts on the network
@@ -147,8 +150,6 @@ class Host:
             print('OKAY message received')
             #payload contains host area, and list of connected hosts
             payload_array = response_message.payload.split(',')
-            self.x_min = int(payload_array[0])
-            self.x_max = self.x_min + self.x_scalar
             i = 1
             lost_payload = ''
             while i < len(payload_array):
@@ -159,10 +160,32 @@ class Host:
                     self.host_ips.append(payload_array[i])
                 i += 1
             #this message contains the hosts that have disconnected from the network and notifes the serverPC about the change
+            self.x_min = self.curr_max_x
+            self.x_max = self.x_min + self.x_scalar
+            self.host_info = HostInfo(self.x_min, self.x_max)
+
+            if self.curr_x_min_ip == '':
+                #there was no other host, you are your own neighbor
+                self.r_neighbor = self.ip
+                self.host_info.r_neighbor_ip = self.ip
+                self.l_neighbor = self.ip
+                self.host_info.l_neighbor_ip = self.ip
+            else:
+                #else, there is another host - check if there are any other hosts
+                self.r_neighbor = self.curr_x_min_ip
+                self.host_info.r_neighbor_ip = self.curr_x_min_ip
+
+                if self.l_neighbor == '':
+                    #there isnt a left neighbor - left neighbor is right neighbor
+                    self.l_neighbor = self.r_neighbor
+                    self.host_info.l_neighbor_ip = self.r_neighbor
+                else:
+                    #there is a left neighbor - set host info left neighbor
+                    self.host_info.l_neighbor_ip = self.l_neighbor
+            
             del_message = Message('LHST', self.ip, lost_payload)
             print('sent LHST to serverPC with payload: ' + lost_payload)
             client_sock.sendall(del_message.generateByteMessage())
-            self.host_info = HostInfo(self.x_min, self.x_max)
             # need to start the listening thread and the work thread now
             listening_thread = Thread(target=lambda: self.listeningPort())
             listening_thread.daemon = True
@@ -195,12 +218,15 @@ class Host:
                     curr_host_ip = area_message.origin
                     host_min_x = payload_array[0]
                     host_max_x = payload_array[1]
+                    if host_max_x > self.curr_x_max:
+                        self.curr_x_max = host_max_x
                     if self.min_x == host_max_x:
                         self.l_neighbor = curr_host_ip
-                        self.host_info.l_neighbor_ip = curr_host_ip
-                    if host_min_x == 0:
-                        self.r_neighbor = curr_host_ip
-                        self.host_info.r_neighbor_ip = curr_host_ip
+                    if host_min_x <= self.curr_x_min:
+                        self.curr_x_min = host_min_x
+                        self.curr_x_min_ip = curr_host_ip
+                        #after all this, set the right neighbor as curr_x_min_ip
+
                     new_thread = Thread(target=lambda: self.listenToHost(host_socket))
                     new_thread.daemon = True
                     new_thread.start()
