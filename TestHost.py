@@ -235,6 +235,11 @@ class TestHost:
                 new_thread.start()
                 new_connection = Connection(new_conn_ip, new_conn_sock, new_thread)
                 self.connections.append(new_connection)
+                host_area = str(self.x_min) + ':' + str(self.x_max)
+                #send current host area to the newly connected host
+                area_message = Message('AREA', self.ip, host_area)
+                new_conn_sock.sendall(area_message.generateByteMessage())
+                print('Sent AREA message to ' + new_host_ip)
             else:
                 print('Invalid Message Type received from ' + message.origin)
                 new_conn_sock.close()
