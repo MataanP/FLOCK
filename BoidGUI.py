@@ -21,6 +21,9 @@ class BoidGUI:
         self.num_aboids = len(my_aboids)
         self.my_boids = my_boids
         self.my_aboids = my_aboids
+        self.all_aboids = my_aboids
+        aelf.n_l_halo = my_boids
+        self.n_r_halo = my_boids
         self.boid_size = 100
         self.scat = self.ax.scatter(self.my_boids['position'], self.my_boids['position'], s=self.boid_size, lw=.5, edgecolors='none', facecolors='green', marker=">")
         self.a_scat = self.ax.scatter(self.my_aboids['position'], self.my_aboids['position'], s = self.boid_size, lw=.5, edgecolor='none', facecolors='red', marker=">")
@@ -87,7 +90,22 @@ class BoidGUI:
             self.my_aboids['position'][0, 1] += .1
             self.my_aboids['position'][0, 0] += .1
 
+    def push_UPD(self):
+        self.host_info.my_boids = self.my_boids
+        self.host_info.my_aboids = self.my_aboids
+        self.host_info.all_aboids = self.all_aboids
+        self.host_info.n_l_halo = self.n_l_halo
+        self.host_info.n_r_halo = self.n_r_halo
+
+    def pull_UPD(self):
+        self.my_boids = self.host_info.my_boids
+        self.my_aboids = self.host_info.my_aboids
+        self.all_aboids = self.host_info.all_aboids
+        self.n_l_halo = self.host_info.n_l_halo
+        self.n_r_halo = self.host_info.n_r_halo
+
     def update(self, data):
+        self.pull_UPD()
         # Pick position for regular self.my_boids
         #get_data()
         print('real self.my_boids: ')
@@ -99,6 +117,7 @@ class BoidGUI:
         # Update the scatter collection, with the new position
         self.scat.set_offsets(self.my_boids['position'])
         self.a_scat.set_offsets(self.my_aboids['position'])
+        self.push_UPD()
 
     def run(self):
         animation = FuncAnimation(self.fig, self.update, interval=10)
