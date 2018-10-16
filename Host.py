@@ -75,7 +75,7 @@ class Host:
                 if self.r_neighbor == conn.ip:
                     self.x_max += int((range/2.0)+.5)
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
-                    self.host_info.merge_right_backup()
+                    self.host_info.merge_right_backups()
                 conn.close()
                 self.host_ips.remove(conn.ip)
                 self.connections.remove(conn)
