@@ -8,6 +8,7 @@ class BoidGUI:
 
     def __init__(self, host_info, my_boids, my_aboids):
         self.host_info = host_info
+        self.speed = .1
         self.x_min = 0
         self.x_max = 50
         self.y_min = 0
@@ -22,7 +23,7 @@ class BoidGUI:
         self.my_boids = my_boids
         self.my_aboids = my_aboids
         self.all_aboids = my_aboids
-        aelf.n_l_halo = my_boids
+        self.n_l_halo = my_boids
         self.n_r_halo = my_boids
         self.boid_size = 100
         self.scat = self.ax.scatter(self.my_boids['position'], self.my_boids['position'], s=self.boid_size, lw=.5, edgecolors='none', facecolors='green', marker=">")
@@ -33,62 +34,64 @@ class BoidGUI:
         n_birds = count(self.my_boids)
         #print(self.my_boids['position'])
         new_birds = np.zeros(n_birds, dtype=[('position', float, 2)])
-        new_birds['position'] = [[.5, .2], [.1, .9], [.2, .1], [.8, .8], [.4, .5], [.9, .9], [.2, .9], [.2, .5], [.8, .1]]
+        new_self.my_boids['position'] = [[.5, .2], [.1, .9], [.2, .1], [.8, .8], [.4, .5], [.9, .9], [.2, .9], [.2, .5], [.8, .1]]
 
         self.my_boids = new_birds
-        self.my_boids['position'] = new_birds['position']
+        self.my_boids['position'] = new_self.my_boids['position']
 
         print('boids = ')
         print(self.my_boids['position'])
         print('new_bird = ')
-        print(new_birds['position'])
+        print(new_self.my_boids['position'])
 
 
     def decide_move(self, i):
-        if self.my_aboids['position'][0, 0] == self.my_boids['position'][i, 0] and self.my_aboids['position'][0, 1] > self.my_boids['position'][i, 1]:
-            self.my_boids['position'][i, 1] += .1
-        elif self.my_aboids['position'][0, 0] == self.my_boids['position'][i, 0] and self.my_aboids['position'][0, 1] < self.my_boids['position'][i, 1]:
-            self.my_boids['position'][i, 1] -= .1
-        elif self.my_aboids['position'][0, 1] == self.my_boids['position'][i, 1] and self.my_aboids['position'][0, 0] > self.my_boids['position'][i, 0]:
-            self.my_boids['position'][i, 0] += .1
-        elif self.my_aboids['position'][0, 1] == self.my_boids['position'][i, 1] and self.my_aboids['position'][0, 0] < self.my_boids['position'][i, 0]:
-            self.my_boids['position'][i, 0] -= .1
+        dist = distance_matrix(self.my_boids['position'], self.my_aboids['position'])
+        x = np.argmin(dist[i])
+        if self.my_aboids['position'][x, 0] == self.my_boids['position'][i, 0] and self.my_aboids['position'][x, 1] > self.my_boids['position'][i, 1]:
+            self.my_boids['position'][i, 1] += self.speed
+        elif self.my_aboids['position'][x, 0] == self.my_boids['position'][i, 0] and self.my_aboids['position'][x, 1] < self.my_boids['position'][i, 1]:
+            self.my_boids['position'][i, 1] -= self.speed
+        elif self.my_aboids['position'][x, 1] == self.my_boids['position'][i, 1] and self.my_aboids['position'][x, 0] > self.my_boids['position'][i, 0]:
+            self.my_boids['position'][i, 0] += self.speed
+        elif self.my_aboids['position'][x, 1] == self.my_boids['position'][i, 1] and self.my_aboids['position'][x, 0] < self.my_boids['position'][i, 0]:
+            self.my_boids['position'][i, 0] -= self.speed
             # diag axis logic
-        elif self.my_boids['position'][i, 1] > self.my_aboids['position'][0, 1] and self.my_boids['position'][i, 0] > self.my_aboids['position'][0, 0]:
-            self.my_boids['position'][i, 1] -= .1
-            self.my_boids['position'][i, 0] -= .1
-        elif self.my_boids['position'][i, 1] > self.my_aboids['position'][0, 1] and self.my_boids['position'][i, 0] < self.my_aboids['position'][0, 0]:
-            self.my_boids['position'][i, 0] += .1
-            self.my_boids['position'][i, 1] -= .1
-        elif self.my_boids['position'][i, 1] < self.my_aboids['position'][0, 1] and self.my_boids['position'][i, 0] > self.my_aboids['position'][0, 0]:
-            self.my_boids['position'][i, 1] += .1
-            self.my_boids['position'][i, 0] -= .1
-        elif self.my_boids['position'][i, 1] < self.my_aboids['position'][0, 1] and self.my_boids['position'][i, 0] < self.my_aboids['position'][0, 0]:
-            self.my_boids['position'][i, 1] += .1
-            self.my_boids['position'][i, 0] += .1
+        elif self.my_boids['position'][i, 1] > self.my_aboids['position'][x, 1] and self.my_boids['position'][i, 0] > self.my_aboids['position'][x, 0]:
+            self.my_boids['position'][i, 1] -= self.speed
+            self.my_boids['position'][i, 0] -= self.speed
+        elif self.my_boids['position'][i, 1] > self.my_aboids['position'][x, 1] and self.my_boids['position'][i, 0] < self.my_aboids['position'][x, 0]:
+            self.my_boids['position'][i, 0] += self.speed
+            self.my_boids['position'][i, 1] -= self.speed
+        elif self.my_boids['position'][i, 1] < self.my_aboids['position'][x, 1] and self.my_boids['position'][i, 0] > self.my_aboids['position'][x, 0]:
+            self.my_boids['position'][i, 1] += self.speed
+            self.my_boids['position'][i, 0] -= self.speed
+        elif self.my_boids['position'][i, 1] < self.my_aboids['position'][x, 1] and self.my_boids['position'][i, 0] < self.my_aboids['position'][x, 0]:
+            self.my_boids['position'][i, 1] += self.speed
+            self.my_boids['position'][i, 0] += self.speed
 
-    def a_decide_move(self):
+    def a_decide_move(self, i):
         centroid = np.rint(measurements.center_of_mass(self.my_boids['position']))
-        if centroid[0] == self.my_aboids['position'][0, 0] and centroid[1] < self.my_aboids['position'][0, 1]:
-            self.my_aboids['position'][0, 1] -= .1
-        elif centroid[0] == self.my_aboids['position'][0, 0] and centroid[1] > self.my_aboids['position'][0, 1]:
-            self.my_aboids['position'][0, 1] += .1
-        elif centroid[1] == self.my_aboids['position'][0, 1] and centroid[0] < self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 0] += .1
-        elif centroid[1] == self.my_aboids['position'][0, 1] and centroid[0] > self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 0] -= .1
-        elif centroid[1] > self.my_aboids['position'][0, 1] and centroid[0] > self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 1] -= .1
-            self.my_aboids['position'][0, 0] -= .1
-        elif centroid[1] > self.my_aboids['position'][0, 1] and centroid[0] < self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 1] -= .1
-            self.my_aboids['position'][0, 0] += .1
-        elif centroid[1] < self.my_aboids['position'][0, 1] and centroid[0] > self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 1] += .1
-            self.my_aboids['position'][0, 0] -= .1
-        elif centroid[1] < self.my_aboids['position'][0, 1] and centroid[0] < self.my_aboids['position'][0, 0]:
-            self.my_aboids['position'][0, 1] += .1
-            self.my_aboids['position'][0, 0] += .1
+        if centroid[0] == self.my_aboids['position'][i, 0] and centroid[1] < self.my_aboids['position'][i, 1]:
+            self.my_aboids['position'][0, 1] -= self.speed
+        elif centroid[0] == self.my_aboids['position'][i, 0] and centroid[1] > self.my_aboids['position'][i, 1]:
+            self.my_aboids['position'][0, 1] += self.speed
+        elif centroid[1] == self.my_aboids['position'][i, 1] and centroid[0] < self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 0] += self.speed
+        elif centroid[1] == self.my_aboids['position'][i, 1] and centroid[0] > self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 0] -= self.speed
+        elif centroid[1] > self.my_aboids['position'][i, 1] and centroid[0] > self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 1] -= self.speed
+            self.my_aboids['position'][0, 0] -= self.speed
+        elif centroid[1] > self.my_aboids['position'][i, 1] and centroid[0] < self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 1] -= self.speed
+            self.my_aboids['position'][0, 0] += self.speed
+        elif centroid[1] < self.my_aboids['position'][i, 1] and centroid[0] > self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 1] += self.speed
+            self.my_aboids['position'][0, 0] -= self.speed
+        elif centroid[1] < self.my_aboids['position'][i, 1] and centroid[0] < self.my_aboids['position'][i, 0]:
+            self.my_aboids['position'][0, 1] += self.speed
+            self.my_aboids['position'][0, 0] += self.speed
 
     def push_UPD(self):
         self.host_info.my_boids = self.host_info.GUI_to_host(self.my_boids)
