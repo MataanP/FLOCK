@@ -91,18 +91,18 @@ class BoidGUI:
             self.my_aboids['position'][0, 0] += .1
 
     def push_UPD(self):
-        self.host_info.my_boids = self.host_info.boids_to_host(self.my_boids)
-        self.host_info.my_aboids = self.host_info.boids_to_host(self.my_aboids)
-        self.host_info.all_aboids = self.host_info.boids_to_host(self.all_aboids)
-        self.host_info.n_l_halo = self.host_info.boids_to_host(self.n_l_halo)
-        self.host_info.n_r_halo = self.host_info.boids_to_host(self.n_r_halo)
+        self.host_info.my_boids = self.host_info.GUI_to_host(self.my_boids)
+        self.host_info.my_aboids = self.host_info.GUI_to_host(self.my_aboids)
+        self.host_info.all_aboids = self.host_info.GUI_to_host(self.all_aboids)
+        self.host_info.n_l_halo = self.host_info.GUI_to_host(self.n_l_halo)
+        self.host_info.n_r_halo = self.host_info.GUI_to_host(self.n_r_halo)
 
     def pull_UPD(self):
-        self.my_boids = self.host_info.host_to_boids(self.my_boids)
-        self.my_aboids = self.host_info.host_to_boids(self.my_aboids)
-        self.all_aboids = self.host_info.host_to_boids(self.all_aboids)
-        self.n_l_halo = self.host_info.host_to_boids(self.n_l_halo)
-        self.n_r_halo = self.host_info.host_to_boids(self.n_r_halo)
+        self.my_boids = self.host_info.host_to_GUI(self.my_boids)
+        self.my_aboids = self.host_info.host_to_GUI(self.my_aboids)
+        self.all_aboids = self.host_info.host_to_GUI(self.all_aboids)
+        self.n_l_halo = self.host_info.host_to_GUI(self.n_l_halo)
+        self.n_r_halo = self.host_info.host_to_GUI(self.n_r_halo)
 
     def update(self, data):
         self.pull_UPD()
