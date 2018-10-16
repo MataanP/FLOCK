@@ -33,19 +33,19 @@ class HostInfo:
 		"""
 		A method used to merge the left backup with our current list of birds and alphas
 		"""
-		left_birds = self.string_to_numpy_array(l_backup)
-		left_alpha_birds = self.string_to_numpy_array(l_backup_alphas)
-		np.append(my_boids,left_birds)
-		np.append(my_aboids,left_alpha_birds)
+		left_birds = self.string_to_numpy_array(self.l_backup)
+		left_alpha_birds = self.string_to_numpy_array(self.l_backup_alphas)
+		self.my_boids = np.append(self.my_boids,left_birds)
+		self.my_aboids = np.append(self.my_aboids,left_alpha_birds)
 
 	def merge_right_backups():
 		"""
 		A method used to merge the right backup with our current list of birds and alphas
 		"""
-		right_birds = self.string_to_numpy_array(r_backup)
-		right_alpha_birds = self.string_to_numpy_array(r_backup_alphas)
-		np.append(my_boids,right_birds)
-		np.append(my_aboids,right_alpha_birds)
+		right_birds = self.string_to_numpy_array(self.r_backup)
+		right_alpha_birds = self.string_to_numpy_array(self.r_backup_alphas)
+		self.my_boids = np.append(self.my_boids,right_birds)
+		self.my_aboids = np.append(self.my_aboids,right_alpha_birds)
 
 	def host_to_GUI(self, list):
 		templist = list
@@ -179,14 +179,18 @@ class HostInfo:
 		self.r_halo = right_halo_array
 
 	def string_to_numpy_array(self, array_string):
+		"""
+		A method that turns a string that represents a numpy Array of Arrays
+		into an actual numpy Array
+		"""
 		comma_counter = 0
-		for i in range(0,len(array_string)):
+		for i in range(0,len(array_string)):# the number of smaller arrays in the total array will be equal to number of commas
 			if array_string[i:i+1] == ",":
 				comma_counter+=1
 
-		array = np.zeros(comma_counter, dtype=[('position', float, 2)])
-		array_iterator = 0
+		array = np.zeros(comma_counter, dtype=[('position', float, 2)])# create a zero array
 
+		array_iterator = 0 # a counter for
 		current_comma = -1
 		next_comma = array_string.find(",")
 		next_tunnel = array_string.find("|")
