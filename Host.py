@@ -14,6 +14,8 @@ class Host:
         self.curr_x_max = 0
         self.curr_x_min = 50
         self.curr_x_min_ip = ''
+        self.left_neighbor = ''
+        self.right_neighbor = ''
         self.l_neighbor = '' #Area of the shared area between the host and the left neighbor
         self.r_neighbor = '' #Area shared between the host and the right neighbor
         self.host_ips = [] #The list of all connected hosts on the network
@@ -77,6 +79,8 @@ class Host:
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backups()
                 conn.close()
+                if len(self.connections) == 1:
+                    self.host_info.alone = True
                 self.host_ips.remove(conn.ip)
                 self.connections.remove(conn)
                 return
@@ -99,6 +103,8 @@ class Host:
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backup()
                 conn.close()
+                if len(self.connections) == 1:
+                    self.host_info.alone = True
                 self.host_ips.remove(conn.ip)
                 self.connections.remove(conn)
                 return
@@ -121,6 +127,8 @@ class Host:
                     self.host_info.x_max += int((self.x_scalar/2.0)+.5)
                     self.host_info.merge_right_backup()
                 conn.close()
+                if len(self.connections) == 1:
+                    self.host_info.alone = True
                 self.host_ips.remove(conn.ip)
                 self.connections.remove(conn)
                 return
@@ -192,6 +200,7 @@ class Host:
             work_thread = Thread(target=lambda: self.processWork())
             work_thread.daemon = True
             work_thread.start()
+            self.host_info.alone = False
         else:
             print('Invalid message type received from ' + message.origin)
 
@@ -277,6 +286,8 @@ class Host:
                     all_l, all_r = self.host_info.get_our_backup()
                     all_l_alphas, all_r_alphas = self.host_info.get_our_alpha_backup()
                     min_max = str(self.x_min) + ':' + str(self.x_max)
+                    self.host_info.create_l_halo()
+                    self.host_info.create_r_halo()
                     payload = self.host_info.numpy_array_to_string(self.host_info.my_aboids) + '\0' + self.host_info.numpy_array_to_string(self.host_info.l_halo) + '\0' + self.host_info.numpy_array_to_string(self.host_info.r_halo) + '\0' + all_l + '\0' + all_r + '\0' + all_l_alphas + '\0' + all_r_alphas + '\0' + min_max + '\0'
                     our_update = Message("HUPD", self.ip, payload)
 
@@ -314,6 +325,7 @@ class Host:
                         self.l_neighbor = new_host_ip
                         self.host_info.l_neighbor_ip = new_host_ip
                     self.host_ips.append(new_host_ip)
+                    self.host_info.alone = False
                     #Start the thread that is listening to the socket connected to the new host
                     new_thread = Thread(target=lambda: self.listenToHost(instruction.sock))
                     new_thread.daemon = True
@@ -335,6 +347,8 @@ class Host:
                         #remove the connection object from list of known connections
                         if connection.ip == instruction.message.origin:
                             #close the hosts socket and thread
+                            if len(self.connections) == 1:
+                                self.host_info.alone = True
                             connection.close()
                             self.connections.remove(connection)
                 else:
@@ -344,6 +358,7 @@ class Host:
 
     def updateSelf(self, message):
         self.updated = False
+        self.host_info.alone = True
         host_ip = message.origin
         payload = message.payload.split('\0')
         host_alphas = payload[0]
@@ -355,16 +370,14 @@ class Host:
         r_alpha_backup = payload[6]
         host_min = payload[7].split(':')[0]
         host_max = payload[7].split(':')[1]
-        if self.l_neighbor == host_ip:
-            #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
-            self.host_info.n_l_halo = self.host_info.string_to_numpy_array(host_r_halo)
-            self.host_info.l_backup = host_all_r
-            self.host_info.l_backup_alphas = r_alpha_backup
-        if self.r_neighbor == host_ip:
-            #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
-            self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
-            self.host_info.r_backup = host_all_l
-            self.host_info.r_backup_alphas = l_alpha_backup
+        #if the hosts left neighbor then store the halo region data and create back ups of left neighbor data
+        self.host_info.n_l_halo = self.host_info.string_to_numpy_array(host_r_halo)
+        self.host_info.l_backup = host_all_r
+        self.host_info.l_backup_alphas = r_alpha_backup
+        #if the hosts right neighbor then store the halo region data and create back ups of right neighbor data
+        self.host_info.n_r_halo = self.host_info.string_to_numpy_array(host_l_halo)
+        self.host_info.r_backup = host_all_l
+        self.host_info.r_backup_alphas = l_alpha_backup
         self.updated = True
 
     def listenToHost(self, host_sock):
@@ -457,6 +470,15 @@ class Instruction:
         self.type = type
         self.message = None
         self.sock = None
+
+class Neighbor:
+
+    def __init__(self, x_min, x_max, left_half, right_half, connection):
+        self.x_min = x_min
+        self.x_max = x_max
+        self.left_half = left_half
+        self.right_half = right_half
+        self.conn = connection
 
 def main():
     if len(sys.argv)<4:

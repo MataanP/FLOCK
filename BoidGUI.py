@@ -127,11 +127,12 @@ class BoidGUI:
         self.n_r_halo = self.host_info.host_to_GUI(self.n_r_halo)
 
     def update(self, data):
+        self.host_info.update_my_boids()
         self.pull_UPD()
         # Pick position for regular self.my_boids
         #get_data()
-        print('real self.my_boids: ')
-        print(self.my_boids['position'])
+        print('real a_boids: ')
+        print(self.my_aboids['position'])
         curr_num = len(self.my_boids['position'])
         for i in range(len(self.my_boids['position'])):
             self.decide_move(i)
